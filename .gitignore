@@ -1,0 +1,11 @@
+node_modules/
+client/dist/
+target/
+.anchor/
+*.log
+.env
+.env.txt
+*-keypair.json
+client/preview/dist/
+data/
+server/data/

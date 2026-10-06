@@ -1,0 +1,515 @@
+<title>Pot 21</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>/*
+  Pot 21 design system
+  Layout: a slim top bar (brand, balance, wallet actions), then one focused screen:
+  sign-in, lobby (play now + players waiting, how-to-play alongside), or the table
+  (felt oval as the hero, action dock beneath). Wallet, rules and fairness live in
+  a slide-over sheet so the game itself stays uncluttered. Dark by design.
+*/
+:root{
+  --bg:#0B1322;          /* page */
+  --surface:#111C2F;     /* panels */
+  --raised:#18263D;      /* inputs, rows */
+  --line:#24354F;
+  --text:#EEF2F8;
+  --muted:#93A2B9;
+  --faint:#5E6E87;
+  --felt:#123553;
+  --felt-hi:#1B4A70;
+  --rail:#0A1A2B;
+  --gold:#F2B544;        /* money and the one primary action */
+  --gold-ink:#2A1C02;
+  --win:#3DD68C;
+  --loss:#FF6B5E;
+  --card:#FBF8F1;
+  --card-red:#C6362C;
+  --card-ink:#18202D;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --body:"Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, monospace;
+  --r-sm:8px; --r-md:14px; --r-lg:22px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+a{color:var(--gold)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+.addr{font-family:var(--mono);font-size:.8rem;word-break:break-all}
+.muted{color:var(--muted)}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--raised);color:var(--text);border-radius:999px;padding:10px 18px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,transform .05s;text-decoration:none;white-space:nowrap}
+.btn:hover:not(:disabled){border-color:#3A5070;background:#1E2F4A}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.btn.gold:hover:not(:disabled){background:#F6C463;border-color:#F6C463}
+.btn.ghost{background:transparent}
+.btn.lg{padding:15px 28px;font-size:1.05rem}
+.btn.sm{padding:6px 12px;font-size:.85rem}
+.btn.block{width:100%}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn:hover{color:var(--text)}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(11,19,34,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px}
+.brand{font-family:var(--display);font-weight:800;font-size:1.45rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;margin-right:auto;cursor:default}
+.brand .mark{width:28px;height:28px;border-radius:7px;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;font-size:.95rem;font-weight:800;letter-spacing:-.04em}
+.balance{display:flex;align-items:center;gap:10px;padding:5px 6px 5px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.balance .amt{font-family:var(--display);font-weight:700;font-size:1.05rem}
+.balance .sym{color:var(--muted);font-size:.85rem}
+.acct{display:flex;align-items:center;gap:8px;background:none;border:1px solid transparent;border-radius:999px;padding:4px 10px 4px 4px;cursor:pointer;color:var(--text)}
+.acct:hover{border-color:var(--line)}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.85rem;color:#fff;flex:none}
+.demo-tag{font-size:.75rem;color:var(--gold);border:1px solid rgba(242,181,68,.4);border-radius:999px;padding:2px 9px}
+@media (max-width:640px){
+  .topbar-in{padding:10px 14px;gap:10px}
+  .brand span.word,.acct .name,.demo-tag{display:none}
+  .balance{padding-left:10px}
+  .balance .btn{padding:6px 10px}
+}
+
+/* ---------- page frame ---------- */
+.page{max-width:1180px;margin:0 auto;padding:20px 20px 32px}
+@media (max-width:640px){.page{padding:18px 14px 48px}}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:1.35rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px}
+@media (max-width:640px){.panel{padding:18px;border-radius:var(--r-md)}}
+
+/* ---------- sign-in ---------- */
+.signin{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:center;min-height:calc(100vh - 140px);padding-block:20px}
+.signin h1{font-size:clamp(2.4rem,5.5vw,4.2rem);line-height:1;font-weight:800}
+.signin .lede{font-size:1.1rem;color:var(--muted);max-width:44ch;margin:20px 0 28px}
+.signin .cta{display:flex;flex-direction:column;gap:12px;align-items:flex-start;max-width:380px}
+.signin .note{font-size:.85rem;color:var(--muted);margin:0}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:44px;max-width:620px}
+.facts div{border-top:1px solid var(--line);padding-top:12px;font-size:.88rem;color:var(--muted)}
+.facts b{display:block;color:var(--text);font-weight:600;margin-bottom:2px}
+.err{color:var(--loss);font-size:.9rem;min-height:1.3em;margin:0}
+.devlogin{margin-top:22px;font-size:.88rem;color:var(--muted)}
+.devlogin summary{cursor:pointer}
+.devlogin form{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.devlogin input{flex:1;min-width:160px}
+.hero-table{position:relative;aspect-ratio:1/1;max-width:440px;width:100%;justify-self:center}
+.hero-table .felt{position:absolute;inset:6%;border-radius:50%;background:radial-gradient(circle at 50% 40%,var(--felt-hi),var(--felt) 70%);box-shadow:0 0 0 10px var(--rail),0 0 0 11px var(--line),0 40px 80px rgba(0,0,0,.45)}
+.hero-table .fan{position:absolute;left:50%;top:50%;transform:translate(-50%,-56%);display:flex}
+.hero-table .fan .card{width:110px;height:156px;font-size:1.6rem}
+.hero-table .fan .card:nth-child(1){transform:rotate(-9deg) translateX(16px)}
+.hero-table .fan .card:nth-child(2){transform:rotate(7deg) translateX(-16px) translateY(6px)}
+.hero-table .badge21{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);background:var(--gold);color:var(--gold-ink);font-family:var(--display);font-weight:800;font-size:1.25rem;border-radius:999px;padding:6px 18px}
+@media (max-width:860px){
+  .signin{grid-template-columns:minmax(0,1fr);gap:28px;min-height:0}
+  .hero-table{max-width:280px;order:-1}
+  .hero-table .fan .card{width:80px;height:114px;font-size:1.2rem}
+  .facts{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ---------- inputs ---------- */
+.input{width:100%;background:var(--raised);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 14px;color:var(--text)}
+.input:focus{outline:none;border-color:var(--gold)}
+.field-label{display:block;font-size:.88rem;color:var(--muted);margin-bottom:6px}
+
+/* ---------- lobby ---------- */
+.lobby{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+@media (max-width:960px){.lobby{grid-template-columns:minmax(0,1fr)}}
+.lobby-main{display:flex;flex-direction:column;gap:24px;min-width:0}
+.playnow h2{font-size:1.9rem;font-weight:800}
+.playnow .sub{color:var(--muted);margin:6px 0 22px;max-width:56ch}
+.stake-label{font-size:.9rem;color:var(--muted);margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.chip{position:relative;width:64px;height:64px;border-radius:50%;border:0;cursor:pointer;font-family:var(--display);font-weight:700;font-size:1rem;color:var(--text);background:radial-gradient(circle,var(--raised) 54%,transparent 55%),repeating-conic-gradient(var(--chip,#3A5070) 0 15deg,#0E1A2C 15deg 30deg);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+.chip:hover{filter:brightness(1.15)}
+.chip[aria-pressed=true]{--chip:var(--gold);color:var(--gold);box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--gold)}
+.play-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.play-hint{color:var(--muted);font-size:.92rem;margin:14px 0 0;max-width:62ch}
+.more{margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+.more summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+.more-body{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;margin-top:14px}
+.seg{display:inline-flex;background:var(--raised);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 13px;cursor:pointer;color:var(--muted);font-weight:600}
+.seg button[aria-pressed=true]{background:var(--text);color:var(--bg)}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.count{display:inline-grid;place-items:center;min-width:24px;height:24px;border-radius:999px;background:var(--gold);color:var(--gold-ink);font-size:.8rem;font-weight:700;padding:0 7px;margin-left:8px;vertical-align:3px}
+.waiting{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.waiting li{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:16px;align-items:center;padding:14px 16px;border-radius:var(--r-md);background:var(--raised);border:1px solid transparent}
+.waiting li:hover{border-color:var(--line)}
+.waiting .stack{display:flex}
+.waiting .stack .avatar{width:34px;height:34px;margin-left:-10px;box-shadow:0 0 0 3px var(--raised)}
+.waiting .stack .avatar:first-child{margin-left:0}
+.waiting .stack .open{background:none;border:2px dashed var(--faint);box-shadow:0 0 0 3px var(--raised)}
+.waiting .who{min-width:0}
+.waiting .who b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.waiting .who span{font-size:.85rem;color:var(--muted)}
+.waiting .money{text-align:right}
+.waiting .money b{display:block;font-family:var(--display);font-size:1.15rem}
+.waiting .money span{font-size:.8rem;color:var(--muted)}
+.empty-state{padding:28px 18px;text-align:center;border:1px dashed var(--line);border-radius:var(--r-md);color:var(--muted)}
+.inplay{margin:12px 0 0;font-size:.85rem;color:var(--faint)}
+@media (max-width:560px){.waiting li{grid-template-columns:minmax(0,1fr) auto;gap:10px}.waiting .stack{display:none}.waiting .money{text-align:left}}
+.howto ol{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:18px;counter-reset:step}
+.howto li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;counter-increment:step}
+.howto li::before{content:counter(step);width:32px;height:32px;border-radius:50%;background:var(--raised);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:700}
+.howto li b{display:block;margin-bottom:2px}
+.howto li span{color:var(--muted);font-size:.92rem}
+.values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:20px}
+.values div{background:var(--raised);border-radius:var(--r-sm);padding:10px;text-align:center;font-size:.8rem;color:var(--muted)}
+.values b{display:block;font-family:var(--display);font-size:1.1rem;color:var(--text)}
+.howto .linkbtn{margin-top:16px;display:inline-block}
+
+/* ---------- table ---------- */
+.table-wrap{display:flex;flex-direction:column;gap:16px}
+.table-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:-6px}
+.table-bar .title{margin-right:auto;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.table-bar .title h2{font-size:1.25rem}
+.table-bar .title span{color:var(--muted);font-size:.9rem}
+.felt{position:relative;border-radius:180px/110px;background:radial-gradient(ellipse at 50% 42%,var(--felt-hi),var(--felt) 72%);box-shadow:0 0 0 10px var(--rail),0 0 0 11px var(--line),0 30px 70px rgba(0,0,0,.45);padding:18px 28px 14px;margin:11px 11px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+@media (max-width:640px){.felt{border-radius:60px;padding:22px 10px;margin:8px 8px 0;box-shadow:0 0 0 7px var(--rail),0 0 0 8px var(--line);gap:16px;min-height:0}}
+.opps{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 22px;width:100%}
+.pot{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 22px;border-radius:999px;background:rgba(5,12,22,.35)}
+.pot .lbl{font-size:.8rem;color:#B9C8DB}
+.pot .amt{font-family:var(--display);font-weight:800;font-size:1.85rem;line-height:1.05;color:var(--gold)}
+.pot .sub{font-size:.78rem;color:#9FB2C8}
+.pot-chips{display:flex;gap:2px;margin-bottom:4px}
+.pot-chips i{width:16px;height:16px;border-radius:50%;background:repeating-conic-gradient(var(--gold) 0 30deg,#B07A17 30deg 60deg);box-shadow:inset 0 0 0 3px rgba(0,0,0,.18)}
+
+.seat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:120px;padding:8px 12px 10px;border-radius:var(--r-md);transition:background .25s}
+.seat.turn{background:rgba(242,181,68,.10)}
+.seat.won{background:rgba(61,214,140,.12)}
+.seat.open{opacity:.6}
+.seat .head{display:flex;align-items:center;gap:8px;max-width:180px}
+.seat .name{font-weight:600;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .bot{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.ring{position:relative;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none}
+.ring .avatar{width:32px;height:32px}
+.ring.timing{background:conic-gradient(var(--gold) calc(var(--p,1)*360deg),rgba(255,255,255,.12) 0)}
+.pill{font-size:.78rem;font-weight:600;border-radius:999px;padding:2px 10px;background:rgba(5,12,22,.4);color:#C9D5E4;min-height:22px}
+.pill.win{background:var(--win);color:#052414}
+.pill.bust{background:rgba(255,107,94,.18);color:var(--loss)}
+.pill.bj{background:var(--gold);color:var(--gold-ink)}
+.pill.turn{background:var(--gold);color:var(--gold-ink)}
+.seat.off .name::after{content:" (away)";color:var(--muted);font-weight:400}
+
+.hand{display:flex;justify-content:center;min-height:84px;position:relative}
+.you .hand{min-height:106px}
+.hand:empty{min-height:0}
+.total{position:absolute;right:-14px;top:-10px;min-width:30px;height:30px;border-radius:999px;background:var(--text);color:var(--bg);font-family:var(--display);font-weight:800;display:grid;place-items:center;padding:0 8px;font-size:.95rem;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.total.bust{background:var(--loss);color:#2B0703}
+.total.bj{background:var(--gold);color:var(--gold-ink)}
+
+.card{width:58px;height:84px;border-radius:7px;background:var(--card);color:var(--card-ink);display:flex;flex-direction:column;justify-content:space-between;padding:5px 6px;font-family:var(--display);font-weight:700;font-size:1.05rem;line-height:1;box-shadow:0 3px 10px rgba(0,0,0,.35);margin-left:-20px;user-select:none}
+.card:first-child{margin-left:0}
+.card.red{color:var(--card-red)}
+.card .c-mid{align-self:center;font-size:1.65em;line-height:1}
+.card .c-bot{align-self:flex-end;transform:rotate(180deg)}
+.card.back{background:var(--card);padding:4px}
+.card.back::after{content:"";flex:1;border-radius:4px;background:repeating-linear-gradient(45deg,#1F4C74 0 5px,#163A5A 5px 10px);box-shadow:inset 0 0 0 2px var(--gold)}
+.you .card{width:74px;height:106px;font-size:1.25rem;margin-left:-24px}
+.you .card:first-child{margin-left:0}
+.card.deal{animation:deal .32s cubic-bezier(.2,.8,.3,1)}
+@keyframes deal{from{transform:translate(0,-40px) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+@media (max-width:640px){
+  .seat{min-width:0;padding:6px}
+  .card{width:42px;height:61px;font-size:.85rem;margin-left:-16px}
+  .you .card{width:62px;height:89px;font-size:1.05rem}
+  .you .hand{min-height:89px}
+  .hand{min-height:62px}
+  .pot .amt{font-size:1.6rem}
+}
+
+/* action dock */
+.dock{scroll-margin-bottom:12px;position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;box-shadow:0 -10px 40px rgba(5,10,20,.55);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 24px;align-items:center}
+.dock .say{font-size:1.15rem;font-weight:600;margin:0}
+.dock .help{color:var(--muted);margin:4px 0 0;font-size:.95rem;max-width:60ch}
+.dock .acts{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.dock .acts .btn{min-width:130px}
+.dock .bar{grid-column:1/-1;height:4px;border-radius:2px;background:var(--raised);overflow:hidden}
+.dock .bar i{display:block;height:100%;background:var(--gold);width:100%}
+.dock.result{border-color:transparent}
+.dock.result.win{background:linear-gradient(0deg,rgba(61,214,140,.10),rgba(61,214,140,.10)),var(--surface);border-color:rgba(61,214,140,.4)}
+.dock.result .big{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.1;margin:0}
+.dock.result.win .big{color:var(--win)}
+@media (max-width:640px){
+  .dock{grid-template-columns:minmax(0,1fr);padding:16px}
+  .dock .acts{justify-content:stretch}
+  .dock .acts .btn{flex:1;min-width:0}
+}
+.kbd{font-family:var(--mono);font-size:.75rem;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted);margin-left:4px}
+@media (hover:none){.kbd{display:none}}
+
+/* ---------- sheet (wallet, rules, fairness) ---------- */
+.scrim{position:fixed;inset:0;background:rgba(3,8,16,.6);z-index:40;animation:fade .2s}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);z-index:41;display:flex;flex-direction:column;animation:slide .25s cubic-bezier(.2,.8,.3,1);padding-top:env(safe-area-inset-top,0px)}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.sheet-body{padding:22px;overflow-y:auto;display:flex;flex-direction:column;gap:22px;padding-bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+.x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--text);cursor:pointer;font-size:1.1rem}
+@keyframes slide{from{transform:translateX(40px)}to{transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.wallet-hero{background:var(--raised);border-radius:var(--r-md);padding:18px}
+.wallet-hero .lbl{color:var(--muted);font-size:.88rem}
+.wallet-hero .amt{font-family:var(--display);font-weight:800;font-size:2.3rem;line-height:1.1}
+.wallet-hero .amt small{font-size:1rem;color:var(--muted);font-weight:600;margin-left:6px}
+.wallet-hero .addr-row{display:flex;gap:8px;align-items:center;margin-top:10px;color:var(--muted)}
+.linked-row{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:.92rem;padding:12px 2px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:4px;background:var(--raised);border-radius:999px;padding:4px}
+.tabs button{flex:1;border:0;background:none;border-radius:999px;padding:9px;color:var(--muted);font-weight:600;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--text);color:var(--bg)}
+.move{display:flex;flex-direction:column;gap:12px}
+.amount-row{display:flex;gap:8px}
+.amount-row .input{font-family:var(--display);font-size:1.3rem;font-weight:700}
+.breakdown{background:var(--raised);border-radius:var(--r-sm);padding:12px 14px;font-size:.9rem;display:flex;flex-direction:column;gap:6px}
+.breakdown div{display:flex;justify-content:space-between;gap:10px}
+.breakdown .tot{border-top:1px solid var(--line);padding-top:6px;font-weight:700}
+.breakdown .warn{color:var(--loss)}
+.history{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.history li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.history .t{color:var(--muted);font-size:.8rem}
+.history .a{text-align:right;font-weight:600}
+.history .a.in{color:var(--win)}
+.history .a.fee{color:var(--muted);font-weight:500}
+.rules{display:flex;flex-direction:column;gap:22px}
+.rules h3{margin-bottom:2px}
+.rules p,.rules li{color:#C3CEDD;font-size:.95rem;margin:0}
+.rules ul{padding-left:18px;margin:6px 0 0;display:flex;flex-direction:column;gap:6px}
+.rules section{display:flex;flex-direction:column;gap:6px}
+.hash{font-family:var(--mono);font-size:.75rem;color:var(--muted);word-break:break-all;background:var(--raised);border-radius:var(--r-sm);padding:10px}
+.ok{color:var(--win)} .bad{color:var(--loss)}
+.backup summary{cursor:pointer;color:var(--muted)}
+
+/* ---------- toasts ---------- */
+#toasts{position:fixed;left:50%;top:calc(74px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(520px,calc(100% - 32px))}
+.toast{background:var(--text);color:var(--bg);border-radius:12px;padding:12px 18px;font-weight:600;box-shadow:0 12px 30px rgba(0,0,0,.4);animation:fade .2s;pointer-events:auto}
+.toast.error{background:var(--loss);color:#2B0703}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Sign in with X */
+.xbtn{background:#F4F6FA;border-color:#F4F6FA;color:#0B1322}
+.xbtn:hover:not(:disabled){background:#fff!important;border-color:#fff!important}
+.xbox{width:100%}
+.demo-x{display:flex;flex-direction:column;gap:6px}
+.other{font-size:.9rem;color:var(--muted)}
+.other summary{cursor:pointer}
+.other .btn{margin-top:10px}
+.connect{display:flex;flex-direction:column;gap:10px;background:var(--raised);border-radius:var(--r-md);padding:18px}
+.connect p{margin:0;font-size:.92rem}
+.small{font-size:.85rem}
+</style>
+<div id="app"></div>
+<div id="drawerRoot"></div>
+<div id="toasts" aria-live="polite"></div>
+<script>"use strict";(()=>{var jt=Object.create;var Ce=Object.defineProperty;var Ft=Object.getOwnPropertyDescriptor;var Yt=Object.getOwnPropertyNames;var Wt=Object.getPrototypeOf,Vt=Object.prototype.hasOwnProperty;var B=(n=>typeof require<"u"?require:typeof Proxy<"u"?new Proxy(n,{get:(e,t)=>(typeof require<"u"?require:e)[t]}):n)(function(n){if(typeof require<"u")return require.apply(this,arguments);throw Error('Dynamic require of "'+n+'" is not supported')});var L=(n,e,t)=>()=>{if(t)throw t[0];try{return n&&(e=n(n=0)),e}catch(s){throw t=[s],s}};var Le=(n,e)=>{for(var t in e)Ce(n,t,{get:e[t],enumerable:!0})},Jt=(n,e,t,s)=>{if(e&&typeof e=="object"||typeof e=="function")for(let a of Yt(e))!Vt.call(n,a)&&a!==t&&Ce(n,a,{get:()=>e[a],enumerable:!(s=Ft(e,a))||s.enumerable});return n};var P=(n,e,t)=>(t=n!=null?jt(Wt(n)):{},Jt(e||!n||!n.__esModule?Ce(t,"default",{value:n,enumerable:!0}):t,n));function He(){let n=[];for(let e of nt)for(let t of st)n.push({r:t,s:e});return n}function H(n){let e=0,t=0;for(let s of n)s.r==="A"?(t++,e+=11):s.r==="J"||s.r==="Q"||s.r==="K"?e+=10:e+=Number(s.r);for(;e>21&&t>0;)e-=10,t--;return e}function at(n){return de(n)?-1:le(n)?22:H(n)}function Ue(n){let e=n.map(at),t=Math.max(...e);return t<0?{seats:n.map((s,a)=>a),allBust:!0}:{seats:e.flatMap((s,a)=>s===t?[a]:[]),allBust:!1}}var nt,st,le,de,Oe=L(()=>{"use strict";nt=["S","H","D","C"],st=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];le=n=>n.length===2&&H(n)===21,de=n=>H(n)>21});function De(n,e,t,s=200){if(n<=0n)throw new Error("stake must be positive");if(e<2)throw new Error("need at least 2 seats");if(t.length===0)throw new Error("need at least one winner");if(new Set(t).size!==t.length)throw new Error("duplicate winner seat");for(let w of t)if(w<0||w>=e)throw new Error(`winner seat ${w} out of range`);let i=n*BigInt(e),o=i*BigInt(s)/10000n,l=i-o,d=BigInt(t.length),u=l/d,h=l-u*d,f=t.map((w,v)=>({seat:w,amount:u+(v===0?h:0n)}));return{total:i,fee:o,net:l,payouts:f}}function N(n,e,t=200){let s=n*BigInt(e),a=s*BigInt(t)/10000n;return{total:s,fee:a,net:s-a}}function Y(n,e){if(n<=0n)throw new Error("amount must be positive");let t=n*BigInt(e)/10000n;return{fee:t,net:n-t}}function Re(n,e,t){return`Sign in to Pot 21
+
+This only proves you own this wallet. It does not send a transaction or cost anything.
+
+Wallet: ${n}
+Nonce: ${e}
+Issued: ${t}`}var ce,it=L(()=>{"use strict";ce=200});function K(n){let e=new Uint32Array([1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225]),t=n.length*8,s=new Uint8Array(n.length+9+63>>6<<6);s.set(n),s[n.length]=128;let a=new DataView(s.buffer);a.setUint32(s.length-8,Math.floor(t/4294967296),!1),a.setUint32(s.length-4,t>>>0,!1);let i=new Uint32Array(64),o=(u,h)=>u>>>h|u<<32-h;for(let u=0;u<s.length;u+=64){for(let k=0;k<16;k++)i[k]=a.getUint32(u+k*4,!1);for(let k=16;k<64;k++){let Ie=o(i[k-15],7)^o(i[k-15],18)^i[k-15]>>>3,Me=o(i[k-2],17)^o(i[k-2],19)^i[k-2]>>>10;i[k]=i[k-16]+Ie+i[k-7]+Me>>>0}let[h,f,w,v,S,g,m,x]=e;for(let k=0;k<64;k++){let Ie=o(S,6)^o(S,11)^o(S,25),Me=S&g^~S&m,tt=x+Ie+Me+Gt[k]+i[k]>>>0,Nt=o(h,2)^o(h,13)^o(h,22),Kt=h&f^h&w^f&w,_t=Nt+Kt>>>0;x=m,m=g,g=S,S=v+tt>>>0,v=w,w=f,f=h,h=tt+_t>>>0}e[0]+=h,e[1]+=f,e[2]+=w,e[3]+=v,e[4]+=S,e[5]+=g,e[6]+=m,e[7]+=x}let l=new Uint8Array(32),d=new DataView(l.buffer);for(let u=0;u<8;u++)d.setUint32(u*4,e[u],!1);return l}function ot(n,e){let t=n.length>64?K(n):n,s=new Uint8Array(64);s.set(t);let a=new Uint8Array(64+e.length),i=new Uint8Array(96);for(let o=0;o<64;o++)a[o]=s[o]^54,i[o]=s[o]^92;return a.set(e,64),i.set(K(a),64),K(i)}function qe(n){if(!/^([0-9a-f]{2})*$/i.test(n))throw new Error("invalid hex");let e=new Uint8Array(n.length/2);for(let t=0;t<e.length;t++)e[t]=parseInt(n.slice(t*2,t*2+2),16);return e}var Gt,rt,lt,Ne=L(()=>{"use strict";Gt=new Uint32Array([1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298]);rt=n=>new TextEncoder().encode(n),lt=n=>Array.from(n,e=>e.toString(16).padStart(2,"0")).join("")});function ue(n){return lt(K(qe(n)))}function dt(n,e){return ue(n)===e.toLowerCase()}function*Xt(n,e,t){let s=qe(n);for(let a=0;;a++){let i=ot(s,rt(`${e}:${t.join(":")}:${a}`)),o=new DataView(i.buffer,i.byteOffset,i.byteLength);for(let l=0;l<32;l+=4)yield o.getUint32(l,!1)}}function zt(n,e){let t=Math.floor(4294967296/e)*e;for(;;){let s=n.next().value;if(s<t)return s%e}}function he(n,e,t){let s=He(),a=Xt(n,e,t);for(let i=s.length-1;i>0;i--){let o=zt(a,i+1);[s[i],s[o]]=[s[o],s[i]]}return s}function Ke(n){if(!dt(n.serverSeed,n.commit))return{ok:!1,reason:"Revealed seed doesn't match the commitment published before the hand."};let e=he(n.serverSeed,n.roundId,n.clientSeeds),t=0,s=(a,i)=>a.r===i.r&&a.s===i.s;for(let a=0;a<2;a++)for(let i of n.order)if(!s(n.hands[i][a],e[t++]))return{ok:!1,reason:`Seat ${i+1}'s card ${a+1} doesn't match the shuffle.`};for(let a of n.order)for(let i=2;i<n.hands[a].length;i++)if(!s(n.hands[a][i],e[t++]))return{ok:!1,reason:`Seat ${a+1}'s card ${i+1} doesn't match the shuffle.`};return{ok:!0}}var ct=L(()=>{"use strict";Ne();Oe()});var W,z,Q,Z,ut=L(()=>{"use strict";W=2e4,z=6e4,Q=2,Z=6});function pe(n,e,t=2){let s=BigInt(n),a=s<0n,i=a?-s:s,o=10n**BigInt(e),l=i/o,d=(i%o).toString().padStart(e,"0").slice(0,t);d=d.padEnd(Math.min(2,t),"0");let u=l.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");return(a?"-":"")+(d?`${u}.${d}`:u)}function O(n,e){let t=/^(\d+)(?:\.(\d+))?$/.exec(n.trim());if(!t)throw new Error(`invalid amount "${n}"`);let s=(t[2]??"").padEnd(e,"0");if(s.length>e)throw new Error(`too many decimals in "${n}"`);return BigInt(t[1])*10n**BigInt(e)+BigInt(s||"0")}var ht=L(()=>{"use strict"});function I(n){let e=0n;for(let s of n)e=e<<8n|BigInt(s);let t="";for(;e>0n;)t=pt[Number(e%58n)]+t,e/=58n;for(let s of n){if(s!==0)break;t="1"+t}return t}function ee(n){let e=0n;for(let s of n){let a=pt.indexOf(s);if(a<0)throw new Error("invalid base58");e=e*58n+BigInt(a)}let t=[];for(;e>0n;)t.unshift(Number(e&255n)),e>>=8n;for(let s of n){if(s!=="1")break;t.unshift(0)}return Uint8Array.from(t)}function V(n){if(!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(n))return!1;try{return ee(n).length===32}catch{return!1}}var pt,ft=L(()=>{"use strict";pt="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"});var fe={};Le(fe,{FUNDING_MS:()=>z,HOUSE_FEE_BPS:()=>ce,MAX_SEATS:()=>Z,MIN_SEATS:()=>Q,RANKS:()=>st,SUITS:()=>nt,TURN_MS:()=>W,base58:()=>I,base58Decode:()=>ee,commitFor:()=>ue,computeSettlement:()=>De,formatUnits:()=>pe,handStrength:()=>at,handTotal:()=>H,isBust:()=>de,isNatural:()=>le,isSolanaAddress:()=>V,orderedDeck:()=>He,parseUnits:()=>O,potPreview:()=>N,shuffleDeck:()=>he,signInMessage:()=>Re,transferFee:()=>Y,verifyCommit:()=>dt,verifyRound:()=>Ke,winningSeats:()=>Ue});var M=L(()=>{"use strict";Oe();it();ct();ut();ht();ft()});var D={};Le(D,{burnerAddress:()=>on,depositFromPhantom:()=>cn,exportBurner:()=>pn,importBurner:()=>fn,setPrivySigner:()=>an,stakeOnChain:()=>rn,tokenBalance:()=>hn,withdrawToPhantom:()=>un});function an(n){Je=n}async function Et(n,e){let t=await import("@solana/web3.js"),s=new t.Connection(n.chain.rpcUrl,"confirmed"),a=new t.PublicKey(n.wallet);e.feePayer=a;let{blockhash:i,lastValidBlockHeight:o}=await s.getLatestBlockhash();e.recentBlockhash=i;let l;if(n.login==="privy"){if(!Je)throw new Error("Privy isn't ready yet. Try again in a moment.");let d=await Je(e.serialize({requireAllSignatures:!1,verifySignatures:!1}));l=await s.sendRawTransaction(d)}else{let d=Ge(t.Keypair);if(!d.publicKey.equals(a))throw new Error("This browser doesn't hold your game wallet key. Restore its backup first.");e.sign(d),l=await s.sendRawTransaction(e.serialize())}return await s.confirmTransaction({signature:l,blockhash:i,lastValidBlockHeight:o},"confirmed"),l}async function on(){let{Keypair:n}=await import("@solana/web3.js");return Ge(n).publicKey.toBase58()}function Ge(n){try{let t=localStorage.getItem(Ve);if(t)return n.fromSecretKey(Uint8Array.from(JSON.parse(t)))}catch{}let e=n.generate();try{localStorage.setItem(Ve,JSON.stringify(Array.from(e.secretKey)))}catch{}return e}async function rn(n,e,t){if(!n.chain||!n.token.mint)throw new Error("This server isn't in solana mode.");let s=await import("@solana/web3.js"),{getAssociatedTokenAddressSync:a}=await import("@solana/spl-token"),{ixJoin:i}=await import("@pot21/shared/escrow"),o=new s.PublicKey(n.wallet),l=new s.PublicKey(n.token.mint),d=a(l,o),u=i({programId:new s.PublicKey(n.chain.programId),mint:l,roundId:BigInt(e),player:o,playerToken:d,seat:t});return Et(n,new s.Transaction().add(u))}async function Bt(n,e){let{transferFee:t}=await Promise.resolve().then(()=>(M(),fe));return t(n,e)}async function cn(n,e,t){if(!n.chain||!n.token.mint||!n.linked)throw new Error("This server isn't in solana mode.");if(!t.signAndSendTransaction)throw new Error("This Phantom version can't send transactions.");let s=await import("@solana/web3.js"),a=await import("@solana/spl-token"),i=new s.Connection(n.chain.rpcUrl,"confirmed"),o=new s.PublicKey(n.token.mint),l=new s.PublicKey(n.linked),d=new s.PublicKey(n.wallet),u=new s.PublicKey(n.chain.house),{fee:h,net:f}=await Bt(e,n.fees.depositBps),w=a.getAssociatedTokenAddressSync(o,l),v=a.getAssociatedTokenAddressSync(o,d),S=a.getAssociatedTokenAddressSync(o,u,!0),g=new s.Transaction().add(a.createAssociatedTokenAccountIdempotentInstruction(l,v,d,o),a.createTransferCheckedInstruction(w,o,v,l,f,n.token.decimals));h>0n&&g.add(a.createAssociatedTokenAccountIdempotentInstruction(l,S,u,o),a.createTransferCheckedInstruction(w,o,S,l,h,n.token.decimals));let m=await i.getBalance(d);m<dn&&g.add(s.SystemProgram.transfer({fromPubkey:l,toPubkey:d,lamports:ln-m})),g.feePayer=l,g.recentBlockhash=(await i.getLatestBlockhash()).blockhash;let{signature:x}=await t.signAndSendTransaction(g);return await i.confirmTransaction(x,"confirmed"),x}async function un(n,e){if(!n.chain||!n.token.mint||!n.linked)throw new Error("This server isn't in solana mode.");let t=await import("@solana/web3.js"),s=await import("@solana/spl-token"),a=new t.PublicKey(n.wallet),i=new t.PublicKey(n.token.mint),o=new t.PublicKey(n.linked),l=new t.PublicKey(n.chain.house),{fee:d,net:u}=await Bt(e,n.fees.withdrawBps),h=s.getAssociatedTokenAddressSync(i,a),f=s.getAssociatedTokenAddressSync(i,o),w=s.getAssociatedTokenAddressSync(i,l,!0),v=new t.Transaction().add(s.createAssociatedTokenAccountIdempotentInstruction(a,f,o,i),s.createTransferCheckedInstruction(h,i,f,a,u,n.token.decimals));return d>0n&&v.add(s.createTransferCheckedInstruction(h,i,w,a,d,n.token.decimals)),Et(n,v)}async function hn(n,e){if(!n.chain||!n.token.mint)return 0n;let t=await import("@solana/web3.js"),s=await import("@solana/spl-token"),a=new t.Connection(n.chain.rpcUrl,"confirmed");try{let i=s.getAssociatedTokenAddressSync(new t.PublicKey(n.token.mint),new t.PublicKey(e));return BigInt((await a.getTokenAccountBalance(i)).value.amount)}catch{return 0n}}async function pn(){let n=await import("@solana/web3.js"),{base58:e}=await Promise.resolve().then(()=>(M(),fe));return e(Ge(n.Keypair).secretKey)}async function fn(n){let e=await import("@solana/web3.js"),{base58Decode:t}=await Promise.resolve().then(()=>(M(),fe)),s=e.Keypair.fromSecretKey(t(n.trim()));return localStorage.setItem(Ve,JSON.stringify(Array.from(s.secretKey))),s.publicKey.toBase58()}var Ve,Je,ln,dn,R=L(()=>{"use strict";Ve="pot21.burner",Je=null;ln=1e7,dn=3e6});var Pt={};Le(Pt,{mountPrivy:()=>gn});function gn(){throw new Error("Privy isn't available in the preview.")}var At=L(()=>{});M();if(!globalThis.phantom?.solana){let n=null,e=null,t={isPhantom:!0,isDemo:!0,publicKey:null,async connect(){if(!n){n=await crypto.subtle.generateKey({name:"Ed25519"},!1,["sign","verify"]);let s=new Uint8Array(await crypto.subtle.exportKey("raw",n.publicKey)),a=I(s);e={toString:()=>a}}return t.publicKey=e,{publicKey:e}},async disconnect(){t.publicKey=null},async signMessage(s){if(!n)throw new Error("not connected");return{signature:new Uint8Array(await crypto.subtle.sign({name:"Ed25519"},n.privateKey,s))}}};globalThis.phantom={solana:t}}Ne();var _e=class extends Uint8Array{toString(e){return e==="hex"?Array.from(this,t=>t.toString(16).padStart(2,"0")).join(""):e==="base64url"?btoa(String.fromCharCode(...this)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""):super.toString()}};function E(n){return crypto.getRandomValues(new _e(n))}function gt(n){let e="",t={update(s){return e+=s,t},digest(s){let a=K(new TextEncoder().encode(e));return s==="base64url"?btoa(String.fromCharCode(...a)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""):""}};return t}M();var ge=()=>{throw new Error("Not available in the preview.")},mt=ge,bt=ge,wt=ge,yt=ge,vt=n=>n;M();async function kt(n,e,t){if(n.length!==32||t.length!==64)return!1;try{let s=await crypto.subtle.importKey("raw",n,{name:"Ed25519"},!1,["verify"]);return await crypto.subtle.verify({name:"Ed25519"},s,t,e)}catch{return!1}}var Qt=5*6e4,St=720*60*6e4,je=n=>gt("sha256").update(n).digest("base64url"),me=class{byKey=new Map;sessions=new Map;byId=new Map;challenges=new Map;ephemeral=new Set;saveTimer=null;file;now;constructor(e={}){this.file=e.file??null,e.makeWallet&&(this.makeWallet=e.makeWallet),this.now=e.now??Date.now,this.load()}makeWallet=()=>I(E(32));load(){if(!this.file)return;let e;try{e=JSON.parse(mt(this.file,"utf8"))}catch(s){if(s.code==="ENOENT")return;throw new Error(`Couldn't read the accounts file ${this.file}: ${s.message}`)}for(let{key:s,user:a}of e.users??[])this.byKey.set(s,a),this.byId.set(a.id,a);let t=this.now();for(let s of e.sessions??[])s.expires>t&&this.byId.has(s.userId)&&this.sessions.set(s.hash,{userId:s.userId,expires:s.expires})}changed(){!this.file||this.saveTimer||(this.saveTimer=setTimeout(()=>{this.saveTimer=null,this.flush()},250),this.saveTimer.unref?.())}flush(){if(!this.file)return;this.saveTimer&&(clearTimeout(this.saveTimer),this.saveTimer=null);let e=this.now(),t={version:1,users:[...this.byKey].filter(([,a])=>!this.ephemeral.has(a.id)).map(([a,i])=>({key:a,user:i})),sessions:[...this.sessions].filter(([,a])=>a.expires>e&&!this.ephemeral.has(a.userId)).map(([a,i])=>({hash:a,...i}))};yt(vt(this.file),{recursive:!0});let s=this.file+".tmp";bt(s,JSON.stringify(t)),wt(s,this.file)}create(e,t,s,a,i){let o={id:E(8).toString("hex"),handle:t,wallet:s,linked:a,login:i};return this.byKey.set(e,o),this.byId.set(o.id,o),this.changed(),o}session(e){let t=E(24).toString("base64url");return this.sessions.set(je(t),{userId:e.id,expires:this.now()+St}),this.changed(),t}markEphemeral(e){this.ephemeral.add(e)}endSession(e){this.sessions.delete(je(e))&&this.changed()}loginDev(e,t){let s=en(e),a="x:"+s.toLowerCase(),i=this.byKey.get(a),o=!i;if(!i)i=this.create(a,s,t??this.makeWallet(),null,"dev");else if(t&&i.wallet!==t)throw new Error("That handle is linked to a different wallet.");return{user:i,token:this.session(i),isNew:o}}challenge(e){if(!V(e))throw new Error("That isn't a Solana wallet address.");let t=Re(e,E(12).toString("hex"),new Date().toISOString());return this.challenges.set(e,{message:t,expires:Date.now()+Qt}),t}async checkSignature(e,t){let s=this.challenges.get(e);if(!s||s.expires<Date.now())throw new Error("Request expired. Try connecting again.");this.challenges.delete(e);let a;try{a=ee(t)}catch{throw new Error("That signature isn't valid.")}if(!await kt(ee(e),new TextEncoder().encode(s.message),a))throw new Error("Phantom's signature didn't match. Try connecting again.")}async loginPhantom(e,t,s){if(await this.checkSignature(e,t),s!==void 0&&!V(s))throw new Error("Game wallet address is invalid.");if(s===e)throw new Error("The game wallet must be separate from your Phantom wallet.");let a="sol:"+e,i=this.byKey.get(a),o=!i;if(!i)i=this.create(a,Zt(e),s??this.makeWallet(),e,"phantom");else if(s&&i.wallet!==s)throw new Error("Your game wallet is stored in a different browser. Sign in there, or restore its backup key in this one.");return{user:i,token:this.session(i),isNew:o}}loginPrivy(e){let t="privy:"+e.did,s=this.byKey.get(t),a=!s;return s?(s.handle!=="@"+e.xUsername||s.wallet!==e.wallet)&&(s.handle="@"+e.xUsername,s.wallet=e.wallet,this.changed()):s=this.create(t,"@"+e.xUsername,e.wallet,null,"privy"),{user:s,token:this.session(s),isNew:a}}async linkPhantom(e,t,s){let a=this.byId.get(e);if(!a)throw new Error("Unknown user.");if(await this.checkSignature(t,s),t===a.wallet)throw new Error("That's your game wallet. Connect the Phantom wallet you'll deposit from.");for(let i of this.byId.values())if(i!==a&&i.linked===t)throw new Error("That Phantom wallet is already linked to another account.");return a.linked=t,this.changed(),a}get(e){return this.byId.get(e)}resume(e){let t=je(e),s=this.sessions.get(t);return s?s.expires<=this.now()?(this.sessions.delete(t),this.changed(),null):(s.expires=this.now()+St,this.changed(),this.byId.get(s.userId)??null):null}},Zt=n=>n.slice(0,4)+"\u2026"+n.slice(-4);function en(n){let e=n.trim().replace(/^@+/,"");if(!/^[A-Za-z0-9_]{1,15}$/.test(e))throw new Error("X handles are 1\u201315 letters, numbers or underscores.");return"@"+e}M();var tn=BigInt(Date.now())*1000n,nn=()=>(++tn).toString(),be=class{constructor(e,t,s,a,i,o={}){this.id=e;this.seats=t;this.stake=s;this.ledger=a;this.onChange=i;this.seated=Array(t).fill(null),this.turnMs=o.turnMs??2e4,this.fundingMs=o.fundingMs??6e4,this.nextHandMs=o.nextHandMs??6e3,this.botDelayMs=o.botDelayMs??700,this.log=o.log??(()=>{})}id;seats;stake;ledger;onChange;seated;openedAt=Date.now();round=null;button=0;timer=null;botTimers=new Set;busy=!1;closed=!1;turnMs;fundingMs;nextHandMs;botDelayMs;log;get inRound(){return!!this.round&&(this.round.phase==="funding"||this.round.phase==="playing"||this.round.phase==="settling")}occupied(){return this.seated.filter(Boolean).length}seatOf(e){return this.seated.findIndex(t=>t?.userId===e)}humans(){return this.seated.filter(e=>!!e&&!e.isBot)}join(e){if(this.closed)throw new Error("This table has closed.");if(this.seatOf(e.userId)>=0)throw new Error("You're already at this table.");if(this.inRound)throw new Error("A hand is in progress. Join when it finishes.");let t=this.seated.findIndex(s=>s===null);if(t<0)throw new Error("This table is full.");return this.seated[t]=e,this.log(`${e.handle} sat at seat ${t}`),this.maybeOpen(),this.changed(),t}leave(e){let t=this.seatOf(e);if(t<0)return;let s=this.seated[t];if(this.inRound){s.leaving=!0;let a=this.round;a.phase==="playing"&&a.order[a.turnPos]===t&&this.stand(t,"stood")}else this.seated[t]=null;this.changed()}setConnected(e,t){let s=this.seatOf(e);s<0||(this.seated[s].connected=t,this.changed())}maybeOpen(){this.inRound||this.busy||this.closed||this.occupied()<this.seats||this.humans().length===0||this.openRound()}async openRound(){this.busy=!0;let e=this.seated,t=E(32).toString("hex"),s=nn(),{total:a,fee:i,net:o}=N(this.stake,this.seats),l={id:s,phase:"funding",serverSeed:t,commit:ue(t),clientSeeds:e.map(d=>d.clientSeed),escrow:null,deck:[],next:0,order:[],turnPos:-1,turnEndsAt:null,fundingEndsAt:Date.now()+this.fundingMs,seats:e.map(d=>({player:d,deposited:!1,hand:[],status:"waiting",revealed:!1,payout:null})),settlement:{total:a,fee:i,net:o,payouts:[]},winners:null,allBust:!1,settleSig:null,note:"Table full. Stake to lock your seat."};this.round=l;try{let{escrow:d}=await this.ledger.openRound(s,this.seats,this.stake);l.escrow=d}catch(d){this.log(`openRound failed: ${d.message}`),l.phase="cancelled",l.note="Couldn't open the escrow. Try again shortly.",this.busy=!1,this.changed();return}this.busy=!1,this.schedule(this.fundingMs,()=>this.fundingTimeout(s)),l.seats.forEach((d,u)=>{d.player.isBot&&this.bot(()=>this.deposit(d.player.userId,s).catch(h=>this.log(`bot deposit: ${h.message}`)))}),this.changed()}async deposit(e,t,s){let a=this.round;if(!a||a.id!==t)throw new Error("That round is no longer open.");if(a.phase!=="funding"||!a.escrow)throw new Error("Stakes aren't open right now.");let i=this.seatOf(e);if(i<0)throw new Error("You're not seated at this table.");let o=a.seats[i];if(o.deposited)throw new Error("You've already staked this hand.");await this.ledger.deposit(t,i,o.player.wallet,this.stake,s),!(this.round!==a||a.phase!=="funding")&&(o.deposited=!0,o.status="deposited",this.changed(),a.seats.every(l=>l.deposited)&&this.startPlay())}async fundingTimeout(e){let t=this.round;if(!t||t.id!==e||t.phase!=="funding")return;let s=t.seats.flatMap((a,i)=>a.deposited?[{seat:i,wallet:a.player.wallet}]:[]);t.phase="settling",this.changed();try{let{sig:a}=await this.ledger.cancel(t.id,s,this.stake);t.settleSig=a}catch(a){this.log(`cancel failed: ${a.message}`)}t.phase="cancelled",t.note="Not everyone staked in time. Stakes refunded in full.",t.seats.forEach((a,i)=>{a.deposited||(this.seated[i]=null)}),this.afterRound()}startPlay(){let e=this.round;this.clearTimer(),e.phase="playing",e.fundingEndsAt=null,e.deck=he(e.serverSeed,e.id,e.clientSeeds),e.order=Array.from({length:this.seats},(t,s)=>(this.button+s)%this.seats);for(let t=0;t<2;t++)for(let s of e.order)e.seats[s].hand.push(e.deck[e.next++]);for(let t of e.seats)t.status=le(t.hand)?"blackjack":"playing";e.note="Cards dealt.",e.turnPos=-1,this.advance()}advance(){let e=this.round;this.clearTimer();do e.turnPos++;while(e.turnPos<e.order.length&&e.seats[e.order[e.turnPos]].status!=="playing");if(e.turnPos>=e.order.length){e.turnEndsAt=null,this.settle();return}let t=e.order[e.turnPos],s=e.seats[t];if(s.revealed=!0,e.turnEndsAt=Date.now()+this.turnMs,e.note=`${s.player.handle} to act.`,s.player.leaving){this.stand(t,"stood");return}this.schedule(this.turnMs,()=>{this.round===e&&e.order[e.turnPos]===t&&this.stand(t,"timedout")}),s.player.isBot&&this.bot(()=>this.botAct(e,t)),this.changed()}act(e,t,s){let a=this.round;if(!a||a.id!==t||a.phase!=="playing")throw new Error("There's no hand in play.");let i=this.seatOf(e);if(i<0||a.order[a.turnPos]!==i)throw new Error("It's not your turn.");if(s==="stand")return this.stand(i,"stood");this.hit(i)}hit(e){let t=this.round,s=t.seats[e];if(s.hand.push(t.deck[t.next++]),de(s.hand))return this.stand(e,"bust");if(H(s.hand)===21)return this.stand(e,"stood");t.turnEndsAt=Date.now()+this.turnMs,this.clearTimer(),this.schedule(this.turnMs,()=>{this.round===t&&t.order[t.turnPos]===e&&this.stand(e,"timedout")}),s.player.isBot&&this.bot(()=>this.botAct(t,e)),this.changed()}stand(e,t){let s=this.round;s.seats[e].status=t,this.advance()}async settle(){let e=this.round;e.phase="settling",e.note="Settling the pot.";for(let i of e.seats)i.revealed=!0;let{seats:t,allBust:s}=Ue(e.seats.map(i=>i.hand)),a=De(this.stake,this.seats,t);e.winners=s?[]:t,e.allBust=s,e.settlement=a;for(let i of a.payouts)e.seats[i.seat].payout=i.amount;this.changed();try{let{sig:i}=await this.ledger.settle(e.id,e.seats.map((l,d)=>({seat:d,wallet:l.player.wallet})),a);e.settleSig=i,e.phase="done";let o=t.map(l=>e.seats[l].player.handle);e.note=s?"Everyone bust. Pot refunded evenly; the house fee was kept.":t.length>1?`${o.join(" & ")} split the pot.`:`${o[0]} takes the pot.`}catch(i){this.log(`settle failed for round ${e.id}: ${i.message}`),e.phase="done",e.note="Payout is delayed. Funds are safe in escrow and will be paid out."}this.afterRound()}afterRound(){this.clearTimer(),this.button=(this.button+1)%this.seats,this.seated.forEach((e,t)=>{e&&(e.leaving||!e.isBot&&!e.connected)&&(this.seated[t]=null)});for(let e of this.seated)e?.isBot&&(e.clientSeed=E(8).toString("hex"));this.changed(),this.schedule(this.nextHandMs,()=>{this.round=null,this.changed(),this.maybeOpen()})}bot(e){let t=setTimeout(()=>{this.botTimers.delete(t),this.closed||e()},this.botDelayMs);this.botTimers.add(t)}botAct(e,t){if(this.round!==e||e.phase!=="playing"||e.order[e.turnPos]!==t)return;let s=e.seats[t];H(s.hand)<(s.player.standOn??17)?this.hit(t):this.stand(t,"stood")}view(e){let t=this.round,s=e?this.seatOf(e):-1,a=this.seated.map((l,d)=>{if(!l)return null;let u=t?.seats[d],f=!!u&&(d===s||u.revealed||t.phase==="done"),w=u?u.hand.map((v,S)=>f||S>0?v:null):[];return{seat:d,handle:l.handle,wallet:l.wallet,isBot:l.isBot,connected:l.connected,cards:w,total:u&&f&&u.hand.length?H(u.hand):null,status:u?.status??"waiting",payout:u?.payout?.toString()??null}}),i=t?.settlement,o=t&&(t.phase==="done"||t.phase==="cancelled");return{id:this.id,seats:this.seats,stake:this.stake.toString(),seated:a,yourSeat:s>=0?s:null,round:t&&{id:t.id,phase:t.phase,commit:t.commit,serverSeed:o?t.serverSeed:null,clientSeeds:t.clientSeeds,escrow:t.escrow,fundingEndsAt:t.fundingEndsAt,order:t.order,turnSeat:t.phase==="playing"?t.order[t.turnPos]??null:null,turnEndsAt:t.turnEndsAt,total:(i?.total??0n).toString(),fee:(i?.fee??0n).toString(),net:(i?.net??0n).toString(),winners:t.winners,allBust:t.allBust,settleSig:t.settleSig,note:t.note}}}summary(){return{id:this.id,seats:this.seats,stake:this.stake.toString(),occupied:this.occupied(),phase:this.inRound?this.round.phase:"open",openedAt:this.openedAt,players:this.seated.filter(e=>!!e).map(e=>({handle:e.handle,isBot:e.isBot}))}}get waiting(){return!this.inRound&&this.occupied()<this.seats&&this.humans().length>0}schedule(e,t){this.clearTimer(),this.timer=setTimeout(()=>{this.timer=null,this.closed||t()},e)}clearTimer(){this.timer&&clearTimeout(this.timer),this.timer=null}changed(){this.closed||this.onChange(this)}close(){this.closed=!0,this.clearTimer();for(let e of this.botTimers)clearTimeout(e);this.botTimers.clear()}};var sn=["solsharp","degen_dana","hitonsoft17","moonmarlo","acesmaria","lamportlou","burntchips","vegasvik","ridgeback","splitkings"],we=class{constructor(e,t){this.ledger=e;this.opts=t;this.auth=new me({file:t.accountsFile??null}),this.log=t.log??(()=>{}),e.onTx=(s,a)=>this.toWallet(s,"wallet:tx",a),e.onBalance=s=>{this.pushBalance(s)}}ledger;opts;auth;tables=new Map;conns=new Map;all=new Set;log;connect(e){this.all.add(e)}disconnect(e){if(this.all.delete(e),!e.userId)return;let t=this.conns.get(e.userId);t?.delete(e),t&&t.size===0&&(this.conns.delete(e.userId),this.tableOf(e.userId)?.setConnected(e.userId,!1))}async handle(e,t){let s;try{s=JSON.parse(t)}catch{return}if(typeof s?.id!="number"||typeof s.type!="string")return;let a=this.handlers[s.type];try{if(!a)throw new Error(`Unknown request "${s.type}".`);if(s.type!=="auth"&&s.type!=="auth:challenge"&&!e.userId)throw new Error("Log in first.");let i=await a(e,s.payload??{});e.send(JSON.stringify({id:s.id,ok:!0,result:i}))}catch(i){e.send(JSON.stringify({id:s.id,ok:!1,error:i.message}))}}handlers={"auth:challenge":(e,t)=>({message:this.auth.challenge(String(t.wallet??""))}),auth:async(e,t)=>{let s=null,a=t.sessionToken??"",i=!1,o=!1;if(t.sessionToken&&(s=this.auth.resume(t.sessionToken)),!s&&t.privyToken){if(!this.opts.privy)throw new Error("X sign-in isn't set up on this server.");let d=this.auth.loginPrivy(await this.opts.privy.signIn(String(t.privyToken)));s=d.user,a=d.token,i=d.isNew,o=i}else if(!s&&t.phantom){let d=this.ledger.mode==="solana"?t.wallet:void 0;if(this.ledger.mode==="solana"&&!d)throw new Error("Your browser didn't send a game wallet.");let u=await this.auth.loginPhantom(String(t.phantom.wallet),String(t.phantom.signature),d);s=u.user,a=u.token,i=u.isNew,i&&this.ledger.mode==="mock"&&this.opts.demoPhantomBalance&&await this.ledger.mintTo(s.linked,this.opts.demoPhantomBalance)}else if(!s){if(!t.handle)throw new Error("Your session expired. Sign in again.");if(!this.opts.allowDevLogin)throw new Error("Sign in with Phantom.");if(t.wallet&&this.ledger.mode!=="solana")throw new Error("Bring-your-own wallet is only for solana mode.");if(t.wallet&&!V(t.wallet))throw new Error("That isn't a Solana address.");let d=this.auth.loginDev(t.handle,t.wallet);s=d.user,a=d.token,i=d.isNew,o=i}e.userId=s.id,this.conns.has(s.id)||this.conns.set(s.id,new Set),this.conns.get(s.id).add(e),o&&this.ledger.faucet&&await this.ledger.faucet(s.wallet,this.opts.starterBalance);let l=this.tableOf(s.id);return l?.setConnected(s.id,!0),queueMicrotask(()=>{e.send(JSON.stringify({event:"table:state",data:l?l.view(s.id):null})),e.send(JSON.stringify({event:"lobby:update",data:this.lobby()})),this.pushBalance(s.wallet),s.linked&&this.pushBalance(s.linked)}),{session:this.session(s),sessionToken:a}},"auth:logout":(e,t)=>{this.auth.endSession(String(t.sessionToken??""));let s=this.tableOf(e.userId);return s&&(s.leave(e.userId),this.reapTable(s)),{}},"lobby:list":()=>({tables:this.lobby()}),"table:create":async(e,t)=>{let s=Math.floor(Number(t.seats)),a=Math.floor(Number(t.bots??0));return{tableId:(await this.openTable(e.userId,s,this.stakeOf(t.stake),a,this.checkSeed(t.clientSeed))).id}},"table:quick":async(e,t)=>{let s=e.userId;if(this.tableOf(s))throw new Error("Leave your current table first.");let a=this.stakeOf(t.stake),i=this.checkSeed(t.clientSeed),o=this.userById(s);if(await this.ledger.balance(o.wallet)<a)throw new Error("Your game wallet doesn't hold enough for this stake. Deposit first.");let l=[...this.tables.values()].filter(u=>u.waiting&&u.stake===a).sort((u,h)=>h.occupied()/h.seats-u.occupied()/u.seats||u.openedAt-h.openedAt)[0];return l?(l.join({userId:s,handle:o.handle,wallet:o.wallet,isBot:!1,clientSeed:i,connected:!0,leaving:!1}),this.broadcastLobby(),{tableId:l.id,joined:!0}):{tableId:(await this.openTable(s,Math.floor(Number(t.seats??2)),a,0,i)).id,joined:!1}},"table:join":async(e,t)=>{let s=e.userId,a=this.userById(s),i=this.tables.get(t.tableId);if(!i)throw new Error("That table no longer exists.");if(this.tableOf(s)&&this.tableOf(s)!==i)throw new Error("Leave your current table first.");if(await this.ledger.balance(a.wallet)<i.stake)throw new Error("Your game wallet doesn't hold enough for this stake. Deposit first.");let l=this.checkSeed(t.clientSeed);return i.join({userId:s,handle:a.handle,wallet:a.wallet,isBot:!1,clientSeed:l,connected:!0,leaving:!1}),this.broadcastLobby(),{}},"table:leave":e=>{let t=e.userId,s=this.tableOf(t);return s?(s.leave(t),this.toUser(t,"table:state",null),this.reapTable(s),this.broadcastLobby(),{}):{}},"round:deposit":async(e,t)=>{let s=this.tableOf(e.userId);if(!s)throw new Error("You're not at a table.");return await s.deposit(e.userId,t.roundId,t.signature),{}},"round:action":(e,t)=>{let s=this.tableOf(e.userId);if(!s)throw new Error("You're not at a table.");if(t.action!=="hit"&&t.action!=="stand")throw new Error("Unknown action.");return s.act(e.userId,t.roundId,t.action),{}},"wallet:deposit":async(e,t)=>{let s=this.userById(e.userId);if(!s.linked)throw new Error("Sign in with Phantom to deposit.");let a=this.amount(t.amount);if(this.ledger.mode==="solana"&&!t.signature)throw new Error("Approve the deposit in Phantom first.");return await this.ledger.transferIn(s.linked,s.wallet,a,this.fees.depositBps,t.signature),{}},"wallet:withdraw":async(e,t)=>{let s=this.userById(e.userId);if(!s.linked)throw new Error("Sign in with Phantom to withdraw.");let a=this.amount(t.amount);if(this.ledger.mode==="solana"&&!t.signature)throw new Error("The withdrawal wasn't signed.");return await this.ledger.transferOut(s.wallet,s.linked,a,this.fees.withdrawBps,t.signature),{}},"wallet:link":async(e,t)=>{let s=this.userById(e.userId).linked,a=await this.auth.linkPhantom(e.userId,String(t.wallet??""),String(t.signature??""));return!s&&this.ledger.mode==="mock"&&this.opts.demoPhantomBalance&&await this.ledger.mintTo(a.linked,this.opts.demoPhantomBalance),this.pushBalance(a.linked),{session:this.session(a)}},"wallet:faucet":async e=>{if(!this.ledger.faucet)throw new Error("Top-ups are only available in demo mode.");let t=this.userById(e.userId);if(await this.ledger.balance(t.wallet)>this.opts.starterBalance*5n)throw new Error("You already have plenty of demo tokens.");return await this.ledger.faucet(t.wallet,this.opts.starterBalance/2n),{}}};stakeOf(e){let t;try{t=O(String(e),this.ledger.token.decimals)}catch{throw new Error("Enter a stake like 25 or 2.5.")}if(t<this.opts.minStake||t>this.opts.maxStake)throw new Error("Stake is outside this site's limits.");return t}async openTable(e,t,s,a,i){if(this.tableOf(e))throw new Error("Leave your current table first.");if(!(t>=2&&t<=6))throw new Error(`Tables have ${2}\u2013${6} seats.`);if(a&&!this.opts.allowBots)throw new Error("Bots are only available in demo mode.");if(a<0||a>t-1)throw new Error("Too many bots for that table.");let o=this.userById(e);if(await this.ledger.balance(o.wallet)<s)throw new Error("Your game wallet doesn't hold enough for this stake. Deposit first.");let l=E(4).toString("hex"),d=new be(l,t,s,this.ledger,h=>this.broadcastTable(h),{...this.opts.table,log:this.log});this.tables.set(l,d),d.join({userId:e,handle:o.handle,wallet:o.wallet,isBot:!1,clientSeed:i,connected:!0,leaving:!1});let u=[...sn].sort(()=>Math.random()-.5);for(let h=0;h<a;h++){let{user:f}=this.auth.loginDev(`${u[h]}_bot`.slice(0,15));this.auth.markEphemeral(f.id),await this.ledger.faucet?.(f.wallet,s*1000n),d.join({userId:f.id,handle:f.handle,wallet:f.wallet,isBot:!0,clientSeed:E(8).toString("hex"),connected:!0,leaving:!1,standOn:16+h%3})}return this.broadcastLobby(),d}get fees(){return{potBps:200,depositBps:this.opts.depositFeeBps??200,withdrawBps:this.opts.withdrawFeeBps??200}}amount(e){let t;try{t=O(String(e??""),this.ledger.token.decimals)}catch{throw new Error("Enter an amount like 100 or 12.5.")}if(t<=0n)throw new Error("Enter an amount above zero.");return t}checkSeed(e){let t=String(e??"");if(!/^[A-Za-z0-9_-]{8,64}$/.test(t))throw new Error("Client seed must be 8\u201364 letters, numbers, - or _.");return t}userById(e){let t=this.auth.get(e);if(!t)throw new Error("Unknown user.");return t}session(e){return{userId:e.id,handle:e.handle,wallet:e.wallet,login:e.login,linked:e.linked,fees:this.fees,mode:this.ledger.mode,token:this.ledger.token,chain:this.ledger.chain}}tableOf(e){for(let t of this.tables.values())if(t.seatOf(e)>=0)return t}lobby(){return[...this.tables.values()].filter(e=>e.humans().length>0).map(e=>e.summary())}reapTable(e){e.humans().length===0&&!e.inRound&&(e.close(),this.tables.delete(e.id))}broadcastTable(e){for(let t of e.seated)t&&!t.isBot&&this.toUser(t.userId,"table:state",e.view(t.userId));this.broadcastLobby()}lastLobby="";broadcastLobby(){let e=JSON.stringify({event:"lobby:update",data:this.lobby()});if(e!==this.lastLobby){this.lastLobby=e;for(let t of this.all)t.userId&&t.send(e)}}async pushBalance(e){let t=(await this.ledger.balance(e)).toString();for(let[s]of this.conns){let a=this.userById(s);a.wallet===e&&this.toUser(s,"wallet:balance",{balance:t}),a.linked===e&&this.ledger.mode==="mock"&&this.toUser(s,"wallet:linked",{balance:t})}}toWallet(e,t,s){for(let[a]of this.conns)this.userById(a).wallet===e&&this.toUser(a,t,s)}toUser(e,t,s){let a=JSON.stringify({event:t,data:s});for(let i of this.conns.get(e)??[])i.send(a)}reap(){for(let e of[...this.tables.values()])this.reapTable(e);this.broadcastLobby()}shutdown(){for(let e of this.tables.values())e.close();this.auth.flush()}};M();M();var ye=class{mode="mock";token={symbol:"CHIP",decimals:6,mint:null};house="House"+I(E(28)).slice(0,39);balances=new Map;escrows=new Map;minted=0n;onTx;onBalance;sig(){return I(E(64))}bal(e){return this.balances.get(e)??0n}add(e,t){let s=this.bal(e)+t;if(s<0n)throw new Error("Not enough tokens in wallet for this stake.");this.balances.set(e,s),this.onBalance?.(e)}async balance(e){return this.bal(e)}houseBalance(){return this.bal(this.house)}async faucet(e,t){this.minted+=t,this.add(e,t),this.onTx?.(e,{kind:"in",label:"Demo top-up",amount:t.toString(),route:"Faucet \u2192 you",sig:this.sig(),at:Date.now()})}async mintTo(e,t){this.minted+=t,this.add(e,t)}move(e,t,s,a){let{fee:i,net:o}=Y(s,a);if(this.bal(e)<s)throw new Error("Not enough tokens for that amount.");return this.add(e,-s),this.add(this.house,i),this.add(t,o),{sig:this.sig(),fee:i,net:o}}async transferIn(e,t,s,a){let i=this.move(e,t,s,a);return this.onTx?.(t,{kind:"in",label:"Deposit",amount:i.net.toString(),route:`Phantom ${J(e)} \u2192 you`,sig:i.sig,at:Date.now()}),i.fee&&this.onTx?.(t,{kind:"fee",label:`Deposit fee ${a/100}%`,amount:i.fee.toString(),route:`\u2192 house ${J(this.house)}`,sig:i.sig,at:Date.now()}),i}async transferOut(e,t,s,a){let i=this.move(e,t,s,a);return this.onTx?.(e,{kind:"out",label:"Withdrawal",amount:s.toString(),route:`You \u2192 Phantom ${J(t)}`,sig:i.sig,at:Date.now()}),i.fee&&this.onTx?.(e,{kind:"fee",label:`Withdrawal fee ${a/100}% (included)`,amount:i.fee.toString(),route:`\u2192 house ${J(this.house)}`,sig:i.sig,at:Date.now()}),i}async openRound(e,t,s){if(this.escrows.has(e))throw new Error("round already open");let a="Escrw"+I(E(28)).slice(0,39);return this.escrows.set(e,{address:a,seats:t,stake:s,held:0n,paid:new Set,closed:!1}),{escrow:a}}escrow(e){let t=this.escrows.get(e);if(!t||t.closed)throw new Error("This round's escrow is closed.");return t}async deposit(e,t,s,a){let i=this.escrow(e);if(a!==i.stake)throw new Error("stake mismatch");if(i.paid.has(t))throw new Error("Seat already staked.");this.add(s,-a),i.held+=a,i.paid.add(t);let o=this.sig();return this.onTx?.(s,{kind:"out",label:"Stake",amount:a.toString(),route:`You \u2192 escrow ${J(i.address)}`,sig:o,at:Date.now()}),{sig:o}}async settle(e,t,s){let a=this.escrow(e);if(a.paid.size!==a.seats)throw new Error("round not fully funded");if(s.total!==a.held)throw new Error("settlement total does not match escrow");let i=this.sig();this.add(this.house,s.fee);for(let o of t)this.onTx?.(o.wallet,{kind:"fee",label:"House fee 2% (whole pot)",amount:s.fee.toString(),route:`Escrow \u2192 house ${J(this.house)}`,sig:i,at:Date.now()});for(let o of s.payouts){let l=t.find(d=>d.seat===o.seat).wallet;this.add(l,o.amount),this.onTx?.(l,{kind:"in",label:s.payouts.length>1?"Pot share":"Pot won",amount:o.amount.toString(),route:"Escrow \u2192 you",sig:i,at:Date.now()})}return a.held=0n,a.closed=!0,{sig:i}}async cancel(e,t,s){let a=this.escrow(e),i=this.sig();for(let o of t)a.paid.has(o.seat)&&(this.add(o.wallet,s),a.held-=s,this.onTx?.(o.wallet,{kind:"in",label:"Stake refunded",amount:s.toString(),route:"Escrow \u2192 you",sig:i,at:Date.now()}));if(a.held!==0n)throw new Error("escrow not empty after refund");return a.closed=!0,{sig:i}}audit(){let e=0n;for(let t of this.balances.values())e+=t;for(let t of this.escrows.values())e+=t.held;return{minted:this.minted,accounted:e,ok:e===this.minted}}},J=n=>n.slice(0,4)+"\u2026"+n.slice(-4);var Tt=new ye,xt=new we(Tt,{allowBots:!0,allowDevLogin:!0,starterBalance:1000000000n,minStake:1000000n,maxStake:10000000000n,demoPhantomBalance:1000000000n}),Fe=class{seq=0;pending=new Map;listeners=new Map;onOpen=()=>{};onStatus=()=>{};conn={userId:null,send:e=>{let t=JSON.parse(e);if("event"in t){for(let a of this.listeners.get(t.event)??[])a(t.data);return}let s=this.pending.get(t.id);s&&(this.pending.delete(t.id),t.ok?s.resolve(t.result):s.reject(new Error(t.error)))}};constructor(){xt.connect(this.conn),setTimeout(()=>{this.onStatus("open"),this.onOpen()},0)}request(e,t){return new Promise((s,a)=>{let i=++this.seq;this.pending.set(i,{resolve:s,reject:a}),xt.handle(this.conn,JSON.stringify({id:i,type:e,payload:t}))})}on(e,t){this.listeners.has(e)||this.listeners.set(e,new Set),this.listeners.get(e).add(t)}};globalThis.__pot21={net:new Fe,info:{mode:"mock",token:Tt.token,bots:!0,devLogin:!0}};M();var ve=class{constructor(e){this.url=e;this.open()}url;ws=null;seq=0;pending=new Map;listeners=new Map;backoff=500;onOpen=()=>{};onStatus=()=>{};open(){this.onStatus("connecting");let e=new WebSocket(this.url);this.ws=e,e.onopen=()=>{this.backoff=500,this.onStatus("open"),this.onOpen()},e.onmessage=t=>{let s;try{s=JSON.parse(t.data)}catch{return}if("event"in s){for(let i of this.listeners.get(s.event)??[])i(s.data);return}let a=this.pending.get(s.id);a&&(this.pending.delete(s.id),s.ok?a.resolve(s.result):a.reject(new Error(s.error)))},e.onclose=()=>{this.onStatus("closed");for(let t of this.pending.values())t.reject(new Error("Connection lost. Reconnecting\u2026"));this.pending.clear(),setTimeout(()=>this.open(),this.backoff),this.backoff=Math.min(this.backoff*2,8e3)}}request(e,t){return new Promise((s,a)=>{if(!this.ws||this.ws.readyState!==WebSocket.OPEN)return a(new Error("Not connected yet. Try again in a moment."));let i=++this.seq;this.pending.set(i,{resolve:s,reject:a}),this.ws.send(JSON.stringify({id:i,type:e,payload:t}))})}on(e,t){this.listeners.has(e)||this.listeners.set(e,new Set),this.listeners.get(e).add(t)}};M();var Ye="https://phantom.com/download";function G(){let n=globalThis,e=n.phantom?.solana??n.solana;return e?.isPhantom?e:null}async function We(n){let e=G();if(!e)throw new Error("Phantom isn't installed in this browser.");let t;try{t=(await e.connect()).publicKey.toString()}catch{throw new Error("Phantom connection was cancelled.")}let s=await n(t),a;try{({signature:a}=await e.signMessage(new TextEncoder().encode(s),"utf8"))}catch{throw new Error("You declined the sign-in request in Phantom.")}return{wallet:t,signature:I(a)}}function $t(n){let e={ready:!0,authenticated:!1,handle:null,wallet:null,error:null},t=new Set,s=a=>{e={...e,...a};for(let i of t)i(e)};return{kind:"demo",state:()=>e,subscribe:a=>{t.add(a)},async login(){let a=await n();a&&s({authenticated:!0,handle:a.replace(/^@/,"")})},async logout(){s({authenticated:!1,handle:null})},async getAccessToken(){return null},async signTransaction(){throw new Error("Demo sign-in can't sign real transactions.")}}}var r={info:null,session:null,view:null,lobby:[],balance:null,linkedBalance:null,txs:[],create:{seats:2,stake:"25",bots:0},verify:null,screen:"",sheet:null,walletTab:"deposit"},j={get:n=>{try{return localStorage.getItem(n)}catch{return null}},set:(n,e)=>{try{localStorage.setItem(n,e)}catch{}},del:n=>{try{localStorage.removeItem(n)}catch{}}};function te(){let n=j.get("pot21.seed");return n||(n=Array.from(crypto.getRandomValues(new Uint8Array(12)),e=>e.toString(16).padStart(2,"0")).join(""),j.set("pot21.seed",n)),n}var c=n=>document.querySelector(n),p=n=>n.replace(/[&<>"']/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[e]),Xe=n=>n.length>12?n.slice(0,4)+"\u2026"+n.slice(-4):n,F=()=>r.session?.token.decimals??r.info?.token.decimals??6,b=()=>r.session?.token.symbol??r.info?.token.symbol??"CHIP",C=n=>pe(n,F()),$=n=>C(n).replace(/\.00$/,""),Be=(n,e)=>Array.from({length:Math.max(0,e-n+1)},(t,s)=>n+s),ae=(n,e,t=e+"s")=>`${n} ${n===1?e:t}`,It=["#5B6CF0","#E0705A","#2FA37A","#B061D6","#D4973A","#3C9BD6","#C4507F","#6E8F3A"];function Qe(n){let e=0;for(let s of n)e=e*31+s.charCodeAt(0)>>>0;let t=n.replace(/^@/,"").slice(0,1).toUpperCase()||"?";return`<span class="avatar" style="background:${It[e%It.length]}" aria-hidden="true">${p(t)}</span>`}function U(n,e="info"){let t=document.createElement("div");t.className=`toast ${e==="error"?"error":""}`,t.textContent=n,c("#toasts").appendChild(t),setTimeout(()=>t.remove(),e==="error"?6e3:2800)}async function A(n,e){e&&(e.disabled=!0);try{return await n()}catch(t){U(t.message,"error");return}finally{e&&e.isConnected&&(e.disabled=!1)}}var ie=globalThis.__pot21,y=ie?.net??new ve(`${location.protocol==="https:"?"wss":"ws"}://${location.host}/ws`),ke=!1;y.onStatus=n=>{n==="closed"&&!ke&&(ke=!0,U("Connection lost. Reconnecting\u2026","error")),n==="open"&&ke&&(ke=!1,U("Reconnected."))};y.onOpen=async()=>{let n=j.get("pot21.session");if(n)try{await Te({sessionToken:n});return}catch{j.del("pot21.session")}r.session=null,oe()};y.on("table:state",n=>{let e=r.view?.round;r.view=n,n?.round&&r.verify&&r.verify.roundId!==n.round.id&&(r.verify=null);let t=n?.round?.phase==="playing"&&n.round.turnSeat===n.yourSeat,s=e?.phase==="playing"&&e.turnSeat===r.view?.yourSeat&&e.id===n?.round?.id;if(oe(),t&&!s){try{navigator.vibrate?.(30)}catch{}c(".seat.you")?.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}});y.on("lobby:update",n=>{r.lobby=n,r.screen==="lobby"&&et()});y.on("wallet:balance",n=>{r.balance=n.balance,Pe()});y.on("wallet:linked",n=>{r.linkedBalance=n.balance,Pe()});y.on("wallet:tx",n=>{r.txs.unshift(n),r.txs=r.txs.slice(0,60),r.sheet==="wallet"&&Rt()});async function Te(n){let e;r.info?.mode==="solana"&&!n.sessionToken&&!n.privyToken&&(e=await(await Promise.resolve().then(()=>(R(),D))).burnerAddress());let t=await y.request("auth",{...n,wallet:e});r.session=t.session,j.set("pot21.session",t.sessionToken),oe(),Ze()}async function Ze(){let n=r.session;if(!(!n||n.mode!=="solana"||!n.linked))try{let e=await Promise.resolve().then(()=>(R(),D));r.linkedBalance=(await e.tokenBalance(n,n.linked)).toString(),Pe()}catch{}}var T=null,Se=!1;async function Mt(){if(!(T||!r.info)){if(r.info.privyAppId)try{let{mountPrivy:n}=await Promise.resolve().then(()=>(At(),Pt));T=n(r.info.privyAppId),(await Promise.resolve().then(()=>(R(),D)).catch(()=>null))?.setPrivySigner(t=>T.signTransaction(t))}catch(n){console.error(n),U("X sign-in couldn't load. Refresh the page to try again.","error");return}else r.info.devLogin&&(T=$t(mn));T?.subscribe(n=>{n.error&&q(n.error),Ct(),r.screen==="login"&&X()}),Ct(),X()}}async function Ct(){let n=T?.state();if(!(!T||!n?.authenticated||r.session||Se)&&!(T.kind==="privy"&&!n.wallet)){Se=!0,X();try{if(T.kind==="demo")await Te({handle:n.handle});else for(let e=0;;e++){let t=await T.getAccessToken();if(!t)throw new Error("X sign-in didn't complete. Try again.");try{await Te({privyToken:t});break}catch(s){if(e<5&&/still being created/.test(s.message)){await new Promise(a=>setTimeout(a,1500));continue}throw s}}}catch(e){q(e.message),await T.logout().catch(()=>{})}finally{Se=!1,X()}}}function q(n){let e=c("#loginErr");e&&(e.textContent=n)}function mn(){return new Promise(n=>{let e=c("#xBox");if(!e)return n(null);e.innerHTML=`<form id="demoX" class="demo-x">
+      <label class="field-label" for="demoHandle">Your X handle</label>
+      <div class="amount-row"><input class="input" id="demoHandle" placeholder="@yourname" autocomplete="off" maxlength="16" required><button class="btn gold" type="submit">Continue</button></div>
+      <p class="note">Demo sign-in: X isn't connected here, so type any handle.</p></form>`;let t=c("#demoHandle");t.focus(),X(),c("#demoX").addEventListener("submit",s=>{s.preventDefault(),n(t.value.trim()||null)})})}function oe(){let n=r.session?r.view?"table":"lobby":"login";n!==r.screen&&(r.screen=n,n==="login"?yn():(c("#app").innerHTML=bn()+'<main class="page" id="page"></main>',wn(),n==="lobby"&&kn()),window.scrollTo(0,0)),n==="table"&&In(),Pe(),r.sheet==="fair"&&Ae()}function bn(){let n=r.session;return`
+  <header class="topbar"><div class="topbar-in">
+    <div class="brand"><span class="mark">21</span><span class="word">Pot 21</span></div>
+    ${n.mode==="mock"?'<span class="demo-tag" title="Tokens here are for testing and have no value">Demo tokens</span>':""}
+    <div class="balance">
+      <span><span class="amt num" id="topBal">\u2026</span> <span class="sym">${p(b())}</span></span>
+      <button class="btn gold sm" id="topDeposit">Deposit</button>
+    </div>
+    <button class="acct" id="acctBtn" aria-label="Open your wallet">${Qe(n.handle)}<span class="name">${p(n.handle)}</span></button>
+  </div></header>`}function wn(){c("#acctBtn").onclick=()=>_("wallet");let n=c("#topDeposit");n&&(n.onclick=()=>{r.walletTab="deposit",_("wallet")});let e=c("#topFaucet");e&&(e.onclick=()=>A(()=>y.request("wallet:faucet",{}),e))}function Pe(){let n=c("#topBal");n&&(n.textContent=r.balance==null?"\u2026":C(r.balance));let e=c("#sheetGameBal");e&&(e.textContent=r.balance==null?"\u2026":C(r.balance));let t=c("#sheetLinkedBal");t&&(t.textContent=r.linkedBalance==null?"\u2026":`${C(r.linkedBalance)} ${b()}`),r.sheet==="wallet"&&re(),r.screen==="lobby"&&se()}function yn(){c("#app").innerHTML=`
+  <main class="page">
+    <div class="brand"><span class="mark">21</span><span class="word">Pot 21</span></div>
+    <section class="signin">
+      <div>
+        <h1>Blackjack against real players. Best hand takes the pot.</h1>
+        <p class="lede">Everyone at the table stakes the same amount. Get closer to 21 than the others and the whole pot goes straight to your wallet.</p>
+        <div class="cta">
+          <div id="xBox" class="xbox"><button class="btn lg xbtn block" id="xBtn">Sign in with X</button></div>
+          <p class="note" id="xNote"></p>
+          <p class="err" id="loginErr" role="alert"></p>
+          <details class="other"><summary>Other ways to sign in</summary>
+            <button class="btn" id="phantomBtn">Sign in with Phantom</button>
+          </details>
+        </div>
+        <div class="facts">
+          <div><b>A wallet is made for you</b>Signing in with X creates your own Solana wallet. No seed phrase to set up.</div>
+          <div><b>Stakes held in escrow</b>Your stake sits in an on-chain account until the hand ends.</div>
+          <div><b>Check every deal</b>Each shuffle can be verified once the hand is over.</div>
+        </div>
+      </div>
+      <div class="hero-table" aria-hidden="true">
+        <div class="felt"></div>
+        <div class="fan">${ze({r:"A",s:"S"})}${ze({r:"K",s:"H"})}</div>
+        <div class="badge21">21</div>
+      </div>
+    </section>
+  </main>`,c("#xBtn").onclick=()=>{if(q(""),!T){q(r.info?"X sign-in isn't set up on this server yet.":"Still connecting. Try again in a moment.");return}T.login().catch(n=>q(n.message))},c("#phantomBtn").onclick=async()=>{let n=c("#phantomBtn");if(!G()){window.open(Ye,"_blank","noopener"),q("Phantom isn't installed in this browser.");return}n.disabled=!0,q("");try{let e=await We(async t=>(await y.request("auth:challenge",{wallet:t})).message);await Te({phantom:e})}catch(e){q(e.message),n.disabled=!1}},X()}function X(){let n=c("#xBtn"),e=c("#xNote");if(!n||!e)return;let t=T?.state(),s=Se||!!t?.authenticated&&!r.session;n.disabled=s||T?.kind==="privy"&&!t?.ready,n.innerHTML=s?"Signing you in\u2026":"Sign in with X",e.textContent=T?.kind==="demo"?c("#demoX")?"":"Demo mode: X isn't connected here, so you'll type a handle instead.":t?.authenticated&&!t.wallet?"Creating your wallet\u2026":"You'll approve the sign-in on X. New players get a Solana wallet automatically."}var vn=["5","10","25","50","100","250"];function kn(){let n=r.create;c("#page").innerHTML=`
+  <div class="lobby">
+    <div class="lobby-main">
+      <section class="panel playnow">
+        <h2>Play now</h2>
+        <p class="sub">Choose how much to play for. You'll join people already waiting at that amount, or open a table for others to join.</p>
+        <div class="stake-label">Stake per player</div>
+        <div class="chips" role="group" aria-label="Stake per player">${vn.map(e=>`<button class="chip" data-stake="${e}" aria-pressed="${e===n.stake}" aria-label="${e} ${p(b())}">${e}</button>`).join("")}</div>
+        <div class="play-row"><button class="btn gold lg" id="playBtn"></button></div>
+        <p class="play-hint" id="playHint"></p>
+        <details class="more">
+          <summary>Table options</summary>
+          <div class="more-body">
+            <div><span class="field-label">Players per table</span>
+              <div class="seg">${Be(2,6).map(e=>`<button data-seats="${e}" aria-pressed="${e===n.seats}">${e}</button>`).join("")}</div></div>
+            ${r.info?.bots?'<div><span class="field-label">Practice bots</span><div class="seg" id="botSeg"></div></div>':""}
+            <button class="btn" id="createBtn">Open a new table</button>
+          </div>
+        </details>
+      </section>
+      <section class="panel">
+        <div class="section-head"><h2>Players waiting<span class="count" id="waitCount" hidden></span></h2></div>
+        <ul class="waiting" id="waitList"></ul>
+        <p class="inplay" id="inPlay"></p>
+      </section>
+    </div>
+    <aside class="panel howto">
+      <h2>How to play</h2>
+      <ol>
+        <li><div><b>Pick a stake</b><span>Everyone at the table puts in the same amount. That's the pot.</span></div></li>
+        <li><div><b>Get closest to 21</b><span>On your turn, Hit to take a card or Stand to keep your total. Go over 21 and you're out.</span></div></li>
+        <li><div><b>Best hand wins the pot</b><span>Paid straight to your wallet, minus a 2% house fee. Ties share it.</span></div></li>
+      </ol>
+      <div class="values">
+        <div><b>2\u201310</b>face value</div>
+        <div><b>J Q K</b>count as 10</div>
+        <div><b>A</b>1 or 11</div>
+      </div>
+      <button class="linkbtn" id="rulesLink">Read the full rules</button>
+    </aside>
+  </div>`,c("#page").addEventListener("click",e=>{let t=e.target.closest("button");if(!t)return;let s=()=>O(r.create.stake,F());if(t.dataset.stake)r.create.stake=t.dataset.stake,se();else if(t.dataset.seats)r.create.seats=+t.dataset.seats,se();else if(t.dataset.bots)r.create.bots=+t.dataset.bots,se();else if(t.id==="rulesLink")_("rules");else if(t.id==="playBtn"){if(ne(s()))return xe();ie&&!Dt(s())?A(()=>y.request("table:create",{seats:r.create.seats,stake:r.create.stake,bots:r.create.seats-1,clientSeed:te()}),t):A(()=>y.request("table:quick",{stake:r.create.stake,seats:r.create.seats,clientSeed:te()}),t)}else if(t.id==="createBtn"){if(ne(s()))return xe();A(()=>y.request("table:create",{...r.create,clientSeed:te()}),t)}else if(t.dataset.join){let a=r.lobby.find(i=>i.id===t.dataset.join);if(a&&ne(BigInt(a.stake)))return xe();A(()=>y.request("table:join",{tableId:t.dataset.join,clientSeed:te()}),t)}}),et()}function Ot(){return r.lobby.filter(n=>n.phase==="open"&&n.occupied<n.seats).sort((n,e)=>e.occupied/e.seats-n.occupied/n.seats||n.openedAt-e.openedAt)}var Dt=n=>Ot().find(e=>BigInt(e.stake)===n),ne=n=>!!r.session?.linked&&r.balance!=null&&BigInt(r.balance)<n;function xe(){r.walletTab="deposit",_("wallet")}function se(){let n=c("#playBtn");if(!n)return;let e=r.create;e.bots=Math.min(e.bots,e.seats-1),document.querySelectorAll("[data-stake]").forEach(l=>l.setAttribute("aria-pressed",String(l.dataset.stake===e.stake))),document.querySelectorAll("[data-seats]").forEach(l=>l.setAttribute("aria-pressed",String(+l.dataset.seats===e.seats)));let t=c("#botSeg");t&&(t.innerHTML=Be(0,e.seats-1).map(l=>`<button data-bots="${l}" aria-pressed="${l===e.bots}">${l}</button>`).join(""));let s=O(e.stake,F()),a=Dt(s),i=l=>`The winner gets ${$(N(s,l).net)} ${b()}.`,o=c("#playHint");if(ne(s))n.textContent=`Deposit to play for ${e.stake}`,o.textContent=`Your wallet has ${$(r.balance)} ${b()}. Add tokens from Phantom to take a seat.`;else if(a){let l=a.players.find(u=>!u.isBot)?.handle??"a player",d=a.seats-a.occupied;n.textContent=`Join ${l} for ${e.stake} ${b()}`,o.textContent=`${l} is waiting. ${d===1?"You'll fill the last seat, so the hand starts right away.":`${ae(d-1,"more player")} needed after you.`} ${i(a.seats)}`}else ie?(n.textContent=`Play for ${e.stake} ${b()}`,o.textContent=`Preview: nobody else is here, so practice bots take the other ${e.seats-1===1?"seat":"seats"}. ${i(e.seats)}`):(n.textContent=`Play for ${e.stake} ${b()}`,o.textContent=`Nobody is waiting at ${e.stake} ${b()} yet. You'll open a table, and the hand starts when ${e.seats===2?"one more player joins":`${e.seats-1} more players join`}. ${i(e.seats)}`)}var Sn=n=>{let e=Math.max(0,Math.round((Date.now()-n)/1e3));return e<45?"just now":e<3600?`${Math.max(1,Math.round(e/60))} min`:`${Math.round(e/3600)} h`};function et(){let n=c("#waitList");if(!n)return;let e=Ot(),t=r.lobby.length-e.length,s=c("#waitCount");s.hidden=!e.length,s.textContent=String(e.length),c("#inPlay").textContent=t?`${ae(t,"table")} playing a hand right now.`:"",n.innerHTML=e.length?e.map(a=>{let i=a.seats-a.occupied,o=a.players.filter(d=>!d.isBot),l=o.map(d=>d.handle).join(", ")+(a.players.length>o.length?` + ${ae(a.players.length-o.length,"bot")}`:"");return`<li>
+      <div class="stack">${a.players.map(d=>Qe(d.handle)).join("")}${Be(1,i).map(()=>'<span class="avatar open"></span>').join("")}</div>
+      <div class="who"><b>${p(l)}</b><span>${i===1?"1 seat left":`${i} seats left`}, waiting ${Sn(a.openedAt)}</span></div>
+      <div class="money"><b class="num">${$(a.stake)} ${p(b())}</b><span>winner gets ${$(N(BigInt(a.stake),a.seats).net)}</span></div>
+      <button class="btn gold" data-join="${p(a.id)}">Join</button>
+    </li>`}).join(""):'<li class="empty-state">Nobody is waiting right now. Press Play and your table will show up here for others.</li>',se()}setInterval(()=>{r.screen==="lobby"&&et()},15e3);var xn={S:"\u2660",H:"\u2665",D:"\u2666",C:"\u2663"},Tn={S:"spades",H:"hearts",D:"diamonds",C:"clubs"};function ze(n,e=!1){return n?`<div class="card ${n.s==="H"||n.s==="D"?"red":""} ${e?"deal":""}" aria-label="${n.r} of ${Tn[n.s]}"><span>${n.r}</span><span class="c-mid">${xn[n.s]}</span><span class="c-bot">${n.r}</span></div>`:`<div class="card back ${e?"deal":""}" aria-label="Face-down card"></div>`}var Lt=new Map;function $n(n,e){let t=`${e}:${n.seat}`,s=Lt.get(t)??0;return Lt.set(t,n.cards.length),n.cards.map((a,i)=>ze(a,i>=s)).join("")}function En(n,e,t){let s=e.round;if(!s||s.phase==="cancelled")return{text:"Seated",cls:""};if(s.phase==="funding")return n.status==="deposited"?{text:"Staked",cls:""}:{text:"Not staked yet",cls:""};if(s.phase==="done"&&n.payout&&!s.allBust)return{text:`+${$(n.payout)} ${b()}`,cls:"win"};if(s.phase==="playing"&&s.turnSeat===n.seat)return{text:t?"Your turn":"Playing",cls:"turn"};switch(n.status){case"bust":return{text:"Bust",cls:"bust"};case"blackjack":return{text:"Blackjack",cls:"bj"};case"stood":return{text:"Stands",cls:""};case"timedout":return{text:"Out of time",cls:""};default:return{text:"Waiting",cls:""}}}function Ht(n,e,t=!1){if(!n)return'<div class="seat open"><div class="hand"></div><div class="head"><span class="ring"><span class="avatar open" style="border:2px dashed var(--faint)"></span></span><span class="name muted">Open seat</span></div><span class="pill">Waiting for a player</span></div>';let s=e.round,a=s?.phase==="playing"&&s.turnSeat===n.seat,i=s?.phase==="done"&&!!n.payout&&!s.allBust,o=En(n,e,t),l=n.total!=null&&n.cards.length?`<span class="total ${n.status==="bust"?"bust":n.status==="blackjack"?"bj":""}">${n.total}</span>`:"";return`<div class="seat ${t?"you":""} ${a?"turn":""} ${i?"won":""} ${n.connected?"":"off"}">
+    <div class="hand">${$n(n,s?.id)}${l}</div>
+    <div class="head">
+      <span class="ring ${a?"timing":""}" ${a?`data-ring="${s.turnEndsAt}"`:""}>${Qe(n.handle)}</span>
+      <span class="name">${t?"You":p(n.handle)}</span>${n.isBot?'<span class="bot">bot</span>':""}
+    </div>
+    <span class="pill ${o.cls}">${p(o.text)}</span>
+  </div>`}function Bn(n){let e=-1,t="";return n.seated.forEach((s,a)=>{if(!s||a===n.yourSeat||s.total==null||!["stood","blackjack","timedout"].includes(s.status))return;let i=s.status==="blackjack"?22:s.total;i>e&&(e=i,t=s.handle)}),e<0?null:{strength:e,who:t}}function Pn(n,e){let t=e.total??H(e.cards.filter(Boolean)),s=Bn(n),a=n.round,i=a.order.indexOf(n.yourSeat),o=a.order.slice(i+1).filter(u=>n.seated[u]?.status==="playing").length,l=o?` ${ae(o,"player")} still to play after you.`:"",d=`Your turn. You have ${t}.`;return s?.strength===22?{say:d,help:`${s.who} has blackjack, which beats any other hand. Stand to finish the hand.`}:s&&t>s.strength?{say:d,help:`You're ahead: the best hand so far is ${s.strength}. Standing keeps you in front.${l}`}:s&&t===s.strength?{say:d,help:`You're tied with ${s.who} on ${s.strength}. Stand to share the pot, or hit to try to beat it.${l}`}:s?{say:d,help:`${s.who} has ${s.strength}, so you need more to win. Hit to take a card.${l}`}:t<=11?{say:d,help:`No card can take you over 21 from here, so hitting is safe.${l}`}:t<=16?{say:d,help:`A 10, J, Q or K would put you over 21. Hit to try for more, or stand to keep ${t}.${l}`}:{say:d,help:`That's a strong hand. Most players stand on 17 or more.${l}`}}function An(n){let e=n.round,t=n.yourSeat!=null?n.seated[n.yourSeat]:null,s=`${$(n.stake)} ${b()}`,a=n.seated.filter(g=>!g).length,i='<button class="btn ghost" id="leaveBtn">Leave table</button>',o='<button class="btn" id="fairBtn2">Check this deal</button>',l=e?.fundingEndsAt?`<div class="bar" title="Time left to stake"><i data-ends="${e.fundingEndsAt}" data-total="${6e4}"></i></div>`:"";if(!e)return`<div class="dock"><div><p class="say">Waiting for ${ae(a,"more player")}</p>
+      <p class="help">The hand starts as soon as every seat is filled. You'll be asked to stake ${s} then.</p></div>
+      <div class="acts">${i}</div></div>`;if(e.phase==="funding"){let g=n.seated.filter(m=>m?.status==="deposited").length;return t?.status!=="deposited"?`<div class="dock"><div><p class="say">Table's full. Stake ${s} to start.</p>
+        <p class="help">Your stake is held in escrow until the hand ends, and the best hand wins ${$(e.net)} ${b()}. If anyone doesn't stake in time, everyone is refunded.</p></div>
+        <div class="acts">${i}<button class="btn gold lg" id="stakeBtn">Stake ${s}</button></div>${l}</div>`:`<div class="dock"><div><p class="say">You're in. Waiting for the others to stake.</p>
+      <p class="help">${g} of ${n.seats} staked. Cards are dealt as soon as everyone has.</p></div>${l}</div>`}if(e.phase==="playing"){if(t&&e.turnSeat===n.yourSeat){let x=Pn(n,t);return`<div class="dock"><div><p class="say">${p(x.say)}</p><p class="help">${p(x.help)}</p></div>
+        <div class="acts"><button class="btn lg" id="standBtn">Stand<span class="kbd">S</span></button><button class="btn gold lg" id="hitBtn">Hit<span class="kbd">H</span></button></div>
+        <div class="bar" title="Time left for your move"><i data-ends="${e.turnEndsAt}" data-total="${2e4}"></i></div></div>`}let g=e.turnSeat!=null?n.seated[e.turnSeat]:null,m=t?.status==="bust"?`You went over 21 with ${t.total}.`:t?.status==="blackjack"?"You have blackjack.":t&&["stood","timedout"].includes(t.status)?`You're standing on ${t.total}.`:"Your turn is coming up.";return`<div class="dock"><div><p class="say">${g?`${p(g.handle)} is playing\u2026`:"Dealing\u2026"}</p>
+      <p class="help">${p(m)}</p></div></div>`}if(e.phase==="settling")return`<div class="dock"><div><p class="say">Paying out the pot\u2026</p><p class="help">Winnings are on their way to the winner's wallet.</p></div></div>`;if(e.phase==="cancelled")return`<div class="dock result"><div><p class="big">Hand cancelled</p>
+      <p class="help">Not everyone staked in time. Every stake was refunded in full, with no fee.</p></div><div class="acts">${i}</div></div>`;let d=(e.winners??[]).map(g=>n.seated[g]).filter(Boolean),u=t?.payout?BigInt(t.payout):0n,h="The next hand starts in a few seconds if everyone stays.";if(e.allBust)return`<div class="dock result"><div><p class="big">Everyone went over 21</p>
+      <p class="help">Nobody wins, so the pot was shared out. You got back ${$(u)} ${b()}: your stake minus the 2% fee. ${h}</p></div>
+      <div class="acts">${i}${o}</div></div>`;if(u>0n){let g=d.length>1,m=d.filter(x=>x.seat!==n.yourSeat).map(x=>x.handle).join(", ");return`<div class="dock result win"><div><p class="big">${g?`You split the pot: +${$(u)} ${b()}`:`You won ${$(u)} ${b()}`}</p>
+      <p class="help">${g?`Tied with ${p(m)}. `:""}It's already in your wallet. ${h}</p></div>
+      <div class="acts">${i}${o}</div></div>`}let f=d[0],w=t?.status==="bust"?"You went over 21.":t?.total!=null?`You had ${t.total}.`:"",v=f?.status==="blackjack"?"blackjack":String(f?.total??"the best hand"),S=d.length>1?`${d.map(g=>g.handle).join(" and ")} split the pot with ${v}`:`${f?.handle??"Another player"} won with ${v}`;return`<div class="dock result"><div><p class="big">${p(S)}</p>
+    <p class="help">${p(w)} Your ${s} stake went to the pot. ${h}</p></div>
+    <div class="acts">${i}${o}</div></div>`}function In(){let n=r.view,e=c("#page");if(!e)return;let t=n.round,s=n.yourSeat!=null?n.seated[n.yourSeat]:null,a=n.seated.map((m,x)=>({s:m,i:x})).filter(m=>m.i!==n.yourSeat).sort((m,x)=>(m.i-(n.yourSeat??0)+n.seats)%n.seats-(x.i-(n.yourSeat??0)+n.seats)%n.seats),i=N(BigInt(n.stake),n.seats),o=t&&t.phase!=="cancelled",l=o?t.net:i.net.toString(),d=o?t.total:i.total.toString(),u=o?t.fee:i.fee.toString(),h=o?n.seated.filter(m=>m&&m.status!=="waiting").length:0;e.innerHTML=`
+  <div class="table-wrap">
+    <div class="table-bar">
+      <div class="title"><h2>${$(n.stake)} ${p(b())} table</h2><span>${n.seats} players, winner takes ${$(l)}</span></div>
+      <button class="btn sm ghost" id="rulesBtn">Rules</button>
+      <button class="btn sm ghost" id="fairBtn">Fair play</button>
+    </div>
+    <div class="felt">
+      <div class="opps">${a.map(m=>Ht(m.s,n)).join("")}</div>
+      <div class="pot">
+        ${h?`<div class="pot-chips">${Be(1,Math.min(8,h*2)).map(()=>"<i></i>").join("")}</div>`:""}
+        <span class="lbl">${o?"Winner takes":"Winner takes, once the table is full"}</span>
+        <span class="amt num">${$(l)} ${p(b())}</span>
+        <span class="sub">${$(d)} staked, ${$(u)} house fee (2%)</span>
+      </div>
+      ${s?Ht(s,n,!0):""}
+    </div>
+    ${An(n)}
+  </div>`,c("#rulesBtn").onclick=()=>_("rules"),c("#fairBtn").onclick=()=>_("fair");let f=c("#fairBtn2");f&&(f.onclick=()=>_("fair"));let w=c("#leaveBtn");w&&(w.onclick=()=>A(()=>y.request("table:leave",{}),w));let v=c("#stakeBtn");v&&(v.onclick=()=>{if(ne(BigInt(n.stake)))return xe();A(async()=>{let m;r.session.mode==="solana"&&(v.textContent="Confirm in wallet\u2026",m=await(await Promise.resolve().then(()=>(R(),D))).stakeOnChain(r.session,t.id,n.yourSeat)),await y.request("round:deposit",{roundId:t.id,signature:m})},v)});let S=c("#hitBtn"),g=c("#standBtn");S&&(S.onclick=()=>$e("hit")),g&&(g.onclick=()=>$e("stand"))}function $e(n){let e=r.view?.round;!e||e.phase!=="playing"||e.turnSeat!==r.view?.yourSeat||(document.querySelectorAll("#hitBtn,#standBtn").forEach(t=>t.disabled=!0),A(()=>y.request("round:action",{roundId:e.id,action:n})))}document.addEventListener("keydown",n=>{r.screen!=="table"||r.sheet||n.metaKey||n.ctrlKey||n.altKey||n.target.closest("input,textarea")||((n.key==="h"||n.key==="H")&&$e("hit"),(n.key==="s"||n.key==="S")&&$e("stand"))});function _(n){r.sheet=n,Ae()}function Ee(){r.sheet=null,c("#drawerRoot").innerHTML=""}document.addEventListener("keydown",n=>{n.key==="Escape"&&r.sheet&&Ee()});function Ae(){let n=c("#drawerRoot");if(!r.sheet||!r.session){n.innerHTML="";return}let e=r.sheet==="wallet"?"Your wallet":r.sheet==="rules"?"How Pot 21 works":"Fair play",t=r.sheet==="wallet"?Mn():r.sheet==="rules"?Hn():Un();n.innerHTML=`<div class="scrim" id="scrim"></div>
+    <aside class="sheet" role="dialog" aria-modal="true" aria-label="${e}">
+      <div class="sheet-head"><h2>${e}</h2><button class="x" id="sheetClose" aria-label="Close">\u2715</button></div>
+      <div class="sheet-body">${t}</div>
+    </aside>`,c("#scrim").onclick=Ee,c("#sheetClose").onclick=Ee,r.sheet==="wallet"&&Cn(),r.sheet==="fair"&&On(),(c("#moveAmt")??c("#sheetClose"))?.focus()}function Mn(){let n=r.session,e=!!n.linked;return`
+    <div class="wallet-hero">
+      <div class="lbl">Game wallet balance</div>
+      <div class="amt num"><span id="sheetGameBal">${r.balance==null?"\u2026":C(r.balance)}</span><small>${p(b())}</small></div>
+      <div class="addr-row"><span class="addr" title="${p(n.wallet)}">${p(Xe(n.wallet))}</span><button class="btn sm" id="copyAddr">Copy address</button></div>
+      ${n.login==="privy"?'<p class="muted small" style="margin:10px 0 0">Created for you by Privy when you signed in with X.</p>':""}
+    </div>
+    ${e?`
+      <div class="linked-row"><span class="muted">Phantom ${p(Xe(n.linked))}</span><b class="num" id="sheetLinkedBal">${r.linkedBalance==null?"\u2026":`${C(r.linkedBalance)} ${p(b())}`}</b></div>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="deposit" aria-selected="${r.walletTab==="deposit"}">Deposit</button>
+        <button role="tab" data-tab="withdraw" aria-selected="${r.walletTab==="withdraw"}">Withdraw</button>
+      </div>
+      <form class="move" id="moveForm">
+        <label class="field-label" for="moveAmt" id="moveLabel"></label>
+        <div class="amount-row"><input class="input num" id="moveAmt" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" class="btn" id="maxBtn">Max</button></div>
+        <div class="breakdown" id="breakdown"></div>
+        <button class="btn gold lg block" type="submit" id="moveGo"></button>
+      </form>`:`
+      <section class="connect">
+        <h3>Deposit and withdraw with Phantom</h3>
+        <p class="muted">Connect your Phantom wallet to move tokens in and out of your game wallet. You'll sign a free message to prove it's yours.</p>
+        <button class="btn gold block" id="linkBtn">Connect Phantom</button>
+        <p class="muted small">Or send ${p(b())} to your game wallet address from any Solana wallet.</p>
+        ${n.mode==="mock"?'<button class="btn sm" id="sheetFaucet">Add demo tokens</button>':""}
+      </section>`}
+    <section>
+      <h3 style="margin-bottom:6px">History</h3>
+      <ul class="history" id="history"></ul>
+    </section>
+    ${n.mode==="solana"&&n.login!=="privy"?`<details class="backup"><summary>Back up your game wallet</summary>
+      <p class="muted" style="font-size:.88rem">Your game wallet's key is stored in this browser. Save the backup key somewhere safe to use the wallet elsewhere. Anyone with the key can spend your tokens.</p>
+      <button class="btn sm" id="exportBtn">Show backup key</button>
+      <div class="hash" id="exportOut" hidden></div>
+      <label class="field-label" for="importKey" style="margin-top:12px">Restore from a backup key</label>
+      <div class="amount-row"><input class="input" id="importKey" autocomplete="off" spellcheck="false"><button class="btn" id="importBtn">Restore</button></div>
+    </details>`:""}
+    <button class="btn ghost" id="logoutBtn">Sign out</button>`}function Cn(){let n=r.session;c("#copyAddr").onclick=()=>{navigator.clipboard?.writeText(n.wallet).then(()=>U("Address copied.")).catch(()=>U(n.wallet))},c("#logoutBtn").onclick=async()=>{let o=j.get("pot21.session");o&&await y.request("auth:logout",{sessionToken:o}).catch(()=>{}),j.del("pot21.session"),await T?.logout().catch(()=>{}),await G()?.disconnect().catch(()=>{}),location.reload()};let e=c("#linkBtn");e&&(e.onclick=()=>{A(async()=>{if(!G())throw window.open(Ye,"_blank","noopener"),new Error("Install Phantom, then come back and connect it.");let o=await We(async d=>(await y.request("auth:challenge",{wallet:d})).message),{session:l}=await y.request("wallet:link",o);r.session=l,U("Phantom connected."),Ae(),Ze()},e)});let t=c("#sheetFaucet");t&&(t.onclick=()=>A(()=>y.request("wallet:faucet",{}),t)),document.querySelectorAll("[data-tab]").forEach(o=>o.onclick=()=>{r.walletTab=o.dataset.tab,document.querySelectorAll("[data-tab]").forEach(l=>l.setAttribute("aria-selected",String(l===o))),Ut()});let s=c("#moveAmt");s&&(s.oninput=re,c("#maxBtn").onclick=()=>{let o=r.walletTab==="deposit"?r.linkedBalance:r.balance;o&&(s.value=pe(o,F(),F()).replace(/,/g,"").replace(/\.?0+$/,""),re())},c("#moveForm").addEventListener("submit",o=>{o.preventDefault(),Ln()}),Ut());let a=c("#exportBtn");a&&(a.onclick=()=>A(async()=>{let o=c("#exportOut");o.textContent=await(await Promise.resolve().then(()=>(R(),D))).exportBurner(),o.hidden=!1},a));let i=c("#importBtn");i&&(i.onclick=()=>A(async()=>{let o=await(await Promise.resolve().then(()=>(R(),D))).importBurner(c("#importKey").value);U(`Restored game wallet ${Xe(o)}. Sign in again to use it.`)},i)),Rt()}function Ut(){let n=c("#moveLabel");if(!n)return;let e=r.walletTab==="deposit";n.textContent=e?"Amount to send from Phantom":"Amount to withdraw to Phantom",c("#moveGo").textContent=e?"Deposit":"Withdraw",re()}function re(){let n=c("#breakdown"),e=c("#moveAmt");if(!n||!e||!r.session)return;let t=r.walletTab==="deposit",s=t?r.session.fees.depositBps:r.session.fees.withdrawBps,a=c("#moveGo"),i=0n;try{i=O(e.value||"0",F())}catch{n.innerHTML='<div class="warn">Enter a number, like 100 or 12.5.</div>',a&&(a.disabled=!0);return}let{fee:o,net:l}=i>0n?Y(i,s):{fee:0n,net:0n},d=BigInt((t?r.linkedBalance:r.balance)??"0");n.innerHTML=`
+    <div><span>${t?"From Phantom":"From your game wallet"}</span><span class="num">${C(i)}</span></div>
+    <div class="muted"><span>House fee (${s/100}%)</span><span class="num">\u2212${C(o)}</span></div>
+    <div class="tot"><span>${t?"Arrives in your game wallet":"Arrives in Phantom"}</span><span class="num">${C(l)} ${p(b())}</span></div>
+    ${i>d?`<div class="warn">You have ${C(d)} ${p(b())} ${t?"in Phantom":"in your game wallet"}.</div>`:""}`,a&&(a.disabled=i<=0n||i>d)}async function Ln(){let n=c("#moveGo"),e=c("#moveAmt"),t=r.walletTab==="deposit",s=await A(async()=>{let a=r.session,i=O(e.value,F()),o;if(a.mode==="solana"){let l=await Promise.resolve().then(()=>(R(),D));n.textContent=t?"Approve in Phantom\u2026":"Sending\u2026",o=t?await l.depositFromPhantom(a,i,G()):await l.withdrawToPhantom(a,i)}return await y.request(t?"wallet:deposit":"wallet:withdraw",{amount:e.value.trim(),signature:o}),Y(i,t?a.fees.depositBps:a.fees.withdrawBps)},n);n?.isConnected&&(n.textContent=t?"Deposit":"Withdraw"),s&&(U(t?`Deposited. ${$(s.net)} ${b()} added to your game wallet.`:`Withdrawn. ${$(s.net)} ${b()} sent to Phantom.`),e.value="",re(),Ze(),t&&r.screen==="lobby"&&Ee())}function Rt(){let n=c("#history");n&&(n.innerHTML=r.txs.length?r.txs.map(e=>`<li>
+      <span>${p(e.label)}</span><span class="a num ${e.kind}">${e.kind==="in"?"+":e.kind==="out"?"\u2212":""}${C(e.amount)}</span>
+      <span class="t">${p(e.route)}</span><span class="t">${new Date(e.at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span>
+    </li>`).join(""):'<li><span class="muted">Deposits, stakes and winnings will show up here.</span></li>')}function Hn(){let n=`${(r.session?.fees.depositBps??200)/100}%`;return`<div class="rules">
+    <section><h3>The goal</h3><p>Finish with a hand closer to 21 than every other player at the table, without going over. You play against the other players, not a dealer.</p></section>
+    <section><h3>Card values</h3><ul><li>2 to 10 are worth their number.</li><li>J, Q and K are worth 10.</li><li>An ace is worth 11, or 1 if 11 would take you over 21.</li></ul></section>
+    <section><h3>A hand, start to finish</h3><ul>
+      <li>When the table is full, everyone stakes the same amount. That's the pot.</li>
+      <li>Everyone gets two cards. You always see your own. Other players' first card stays face down until their turn.</li>
+      <li>Players take turns. Hit to take another card, or Stand to keep your total. You have ${2e4/1e3} seconds; if time runs out you stand.</li>
+      <li>Go over 21 and you're bust, which means you're out of this hand.</li>
+      <li>Who goes first moves round one seat each hand, so nobody always goes first.</li></ul></section>
+    <section><h3>Who wins</h3><ul>
+      <li>The highest total of 21 or under takes the pot.</li>
+      <li>Blackjack (an ace plus a 10, J, Q or K as your first two cards) beats any other 21.</li>
+      <li>Tied players share the pot equally.</li>
+      <li>If everyone goes bust, the pot is shared out equally.</li></ul></section>
+    <section><h3>Money</h3><ul>
+      <li>The house keeps 2% of each pot. The rest goes to the winner's wallet as soon as the hand ends.</li>
+      <li>Deposits and withdrawals have a ${n} fee, shown before you confirm.</li>
+      <li>If anyone doesn't stake within ${6e4/1e3} seconds, every stake is refunded in full with no fee.</li></ul></section>
+    <section><h3>Fair dealing</h3><p>Before each hand the shuffle is locked in and its fingerprint is published. When the hand ends, anyone can check the cards dealt match it. Open Fair play at any table to check a hand.</p></section>
+  </div>`}function Un(){let n=r.view?.round;if(!n)return`<div class="rules"><p>Every shuffle is locked in before anyone stakes, and your own random seed is mixed in, so nobody, including the site, can choose the cards. When a hand ends, the secret is revealed and you can check every card dealt.</p><p class="muted">Your seed: <span class="addr">${p(te())}</span></p></div>`;let e=!!n.serverSeed,t=r.verify&&r.verify.roundId===n.id?r.verify:null;return`<div class="rules">
+    <p>${e?"This hand is over, so you can check it now.":"You can check this hand once it ends."}</p>
+    ${e?'<button class="btn gold" id="verifyBtn">Check this deal</button>':""}
+    ${t?`<p class="${t.ok?"ok":"bad"}">${p(t.text)}</p>`:""}
+    <section><h3>Shuffle fingerprint</h3><div class="hash">${p(n.commit)}</div><p class="muted" style="font-size:.85rem">Published before anyone staked.</p></section>
+    <section><h3>Player seeds</h3><div class="hash">${n.clientSeeds.map(p).join("<br>")}</div></section>
+    ${e?`<section><h3>Revealed shuffle secret</h3><div class="hash">${p(n.serverSeed)}</div></section>`:""}
+    ${n.escrow?`<section><h3>Escrow account</h3><div class="hash">${p(n.escrow)}</div></section>`:""}
+  </div>`}function On(){let n=c("#verifyBtn");n&&(n.onclick=()=>{let e=r.view,t=e.round,s=e.seated.map(a=>a?.cards??[]);if(s.some(a=>a.some(i=>!i)))r.verify={roundId:t.id,ok:!1,text:"Some cards are still hidden."};else{let a=Ke({serverSeed:t.serverSeed,commit:t.commit,roundId:t.id,clientSeeds:t.clientSeeds,order:t.order,hands:s});r.verify={roundId:t.id,ok:a.ok,text:a.ok?`Verified. The secret matches the fingerprint, and all ${s.flat().length} cards match the shuffle.`:a.reason}}Ae()})}function qt(){let n=Date.now();document.querySelectorAll("[data-ends]").forEach(e=>{let t=Math.max(0,+e.dataset.ends-n);e.style.width=`${Math.min(100,t/+e.dataset.total*100)}%`}),document.querySelectorAll("[data-ring]").forEach(e=>{let t=Math.max(0,+e.dataset.ring-n);e.style.setProperty("--p",String(Math.min(1,t/2e4)))}),requestAnimationFrame(qt)}requestAnimationFrame(qt);ie?(r.info=ie.info,oe(),Mt()):fetch("/api/info").then(n=>n.json()).then(n=>{r.info=n,Mt(),r.session||(r.screen="",oe())}).catch(()=>U("Can't reach the game server.","error"));})();
+</script>

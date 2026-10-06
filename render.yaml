@@ -1,0 +1,23 @@
+# One-click hosting on Render (render.com): New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: pot21
+    runtime: docker
+    plan: starter            # the saved-accounts disk needs a paid plan
+    healthCheckPath: /healthz
+    disk:
+      name: pot21-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: LEDGER
+        value: mock          # demo tokens until the Solana escrow is live
+      # Render asks for these three when you create the service.
+      - key: PRIVY_APP_ID
+        sync: false
+      - key: PRIVY_APP_SECRET
+        sync: false
+      - key: PRIVY_VERIFICATION_KEY
+        sync: false
